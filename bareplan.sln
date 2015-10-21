@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bareplan", "bareplan.csproj", "{0C43EFB5-A713-4173-BB73-D233C0333331}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "bareplan-test", "bareplan-test\bareplan-test.csproj", "{5E256BFF-3E95-4C54-A704-58B4854C561B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0C43EFB5-A713-4173-BB73-D233C0333331}.Debug|x86.ActiveCfg = Debug|x86
+		{0C43EFB5-A713-4173-BB73-D233C0333331}.Debug|x86.Build.0 = Debug|x86
+		{0C43EFB5-A713-4173-BB73-D233C0333331}.Release|x86.ActiveCfg = Release|x86
+		{0C43EFB5-A713-4173-BB73-D233C0333331}.Release|x86.Build.0 = Release|x86
+		{5E256BFF-3E95-4C54-A704-58B4854C561B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5E256BFF-3E95-4C54-A704-58B4854C561B}.Debug|x86.Build.0 = Debug|Any CPU
+		{5E256BFF-3E95-4C54-A704-58B4854C561B}.Release|x86.ActiveCfg = Release|Any CPU
+		{5E256BFF-3E95-4C54-A704-58B4854C561B}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		Policies = $0
+		$0.DotNetNamingPolicy = $1
+		$1.DirectoryNamespaceAssociation = PrefixedHierarchical
+		$1.ResourceNamePolicy = FileFormatDefault
+		$0.VersionControlPolicy = $2
+		$2.inheritsSet = Mono
+	EndGlobalSection
+EndGlobal

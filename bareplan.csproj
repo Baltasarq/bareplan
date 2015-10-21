@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{0C43EFB5-A713-4173-BB73-D233C0333331}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>bareplan</RootNamespace>
+    <AssemblyName>bareplan</AssemblyName>
+    <StartupObject>Bareplan.Gui.BareplanApp</StartupObject>
+    <ApplicationIcon>Res\appIcon.ico</ApplicationIcon>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Core\AppInfo.cs" />
+    <Compile Include="Core\Document.cs" />
+    <Compile Include="Core\DocumentPersistence.cs" />
+    <Compile Include="Gui\BareplanApp.cs" />
+    <Compile Include="Core\DocumentExporter.cs" />
+    <Compile Include="Core\HtmlExporter.cs" />
+    <Compile Include="Core\Locale.cs" />
+    <Compile Include="Core\StringsL18n.cs" />
+    <Compile Include="Core\XmlDocumentPersistence.cs" />
+    <Compile Include="Gui\MainWindowCore.cs" />
+    <Compile Include="Gui\MainWindowView.cs" />
+    <Compile Include="Core\Steps.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Gui\" />
+    <Folder Include="Core\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Res\appIcon.png" />
+    <EmbeddedResource Include="Res\addRowIcon.png" />
+    <EmbeddedResource Include="Res\calendarViewIcon.png" />
+    <EmbeddedResource Include="Res\exportIcon.png" />
+    <EmbeddedResource Include="Res\listIcon.png" />
+    <EmbeddedResource Include="Res\newIcon.png" />
+    <EmbeddedResource Include="Res\openIcon.png" />
+    <EmbeddedResource Include="Res\propertiesIcon.png" />
+    <EmbeddedResource Include="Res\saveAsIcon.png" />
+    <EmbeddedResource Include="Res\saveIcon.png" />
+    <EmbeddedResource Include="Res\settingsIcon.png" />
+  </ItemGroup>
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties>
+        <Policies>
+          <TextStylePolicy inheritsSet="null" scope="text/x-csharp" />
+          <CSharpFormattingPolicy SimplePropertyFormatting="ForceOneLine" NamespaceBraceStyle="EndOfLine" ClassBraceStyle="EndOfLine" InterfaceBraceStyle="EndOfLine" StructBraceStyle="EndOfLine" EnumBraceStyle="EndOfLine" BeforeMethodDeclarationParentheses="False" BeforeMethodCallParentheses="False" WithinMethodCallParentheses="True" BeforeConstructorDeclarationParentheses="False" BeforeDelegateDeclarationParentheses="False" AfterDelegateDeclarationParameterComma="True" NewParentheses="False" WithinParentheses="True" WithinSizeOfParentheses="True" WithinTypeOfParentheses="True" WithinNewParentheses="True" SpacesWithinBrackets="True" SpacesBeforeBrackets="False" SpacesAfterTypecast="True" inheritsSet="Mono" inheritsScope="text/x-csharp" scope="text/x-csharp" />
+          <TextStylePolicy FileWidth="120" TabsToSpaces="False" inheritsSet="VisualStudio" inheritsScope="text/plain" scope="text/plain" />
+        </Policies>
+      </Properties>
+    </MonoDevelop>
+  </ProjectExtensions>
+</Project>
