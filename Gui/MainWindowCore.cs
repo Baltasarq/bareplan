@@ -260,7 +260,7 @@ namespace Bareplan.Gui {
 		private void OnPropertiesPanelClosed()
 		{
 			if ( this.doc != null ) {
-				this.pnlConfigContainer.Hide( );
+				this.pnlConfigContainer.Hide();
 				this.doc.Steps.SetSteps( this.edSteps.Text );
 				this.doc.InitialDate = this.edInitialDate.Value;
 				this.UpdatePlanning();
@@ -278,6 +278,8 @@ namespace Bareplan.Gui {
 				int rowNumber = 0;
 				var row = this.grdPlanning.CurrentRow;
 				string strDate = this.doc.InitialDate.ToShortDateString();
+
+				this.grdPlanning.EndEdit();
 
 				if ( row != null ) {
 					rowNumber = row.Index;
@@ -307,6 +309,8 @@ namespace Bareplan.Gui {
 				string strDate = this.doc.InitialDate.ToShortDateString();
 				string strTask = Document.TaskTag;
 
+				this.grdPlanning.EndEdit();
+
 				if ( row != null ) {
 					rowNumber = row.Index;
 					strDate = this.grdPlanning.Rows[ rowNumber ].Cells[ (int) ColsIndex.Date ].ToString();
@@ -332,6 +336,8 @@ namespace Bareplan.Gui {
 				var row = this.grdPlanning.CurrentRow;
 				string strDate = this.doc.InitialDate.ToShortDateString();
 
+				this.grdPlanning.EndEdit();
+
 				if ( row != null ) {
 					rowNumber = row.Index;
 					strDate = this.grdPlanning.Rows[ rowNumber ].Cells[ (int) ColsIndex.Date ].ToString();
@@ -355,6 +361,8 @@ namespace Bareplan.Gui {
 				int rowNumber = 0;
 				var row = this.grdPlanning.CurrentRow;
 				string strDate = this.doc.InitialDate.ToShortDateString();
+
+				this.grdPlanning.EndEdit();
 
 				if ( row != null ) {
 					rowNumber = row.Index;
@@ -688,6 +696,7 @@ namespace Bareplan.Gui {
 			Locale.SetLocaleFromDescription( this.cbLocales.Text );
 			this.ChangeUILanguage( Locale.CurrentLocale );
 			this.pnlSettings.Hide();
+			this.UpdatePlanning();
 		}
 
 		protected void ReadConfiguration()

@@ -14,7 +14,7 @@ namespace Bareplan.Core {
 
 		public Document()
 		{
-			this.steps = new Steps();
+			this.Steps = new Steps( this );
 			this.dates = new List<DateTime>();
 			this.tasks = new List<string>();
 			this.InitialDate = DateTime.Now;
@@ -182,9 +182,7 @@ namespace Bareplan.Core {
 		}
 
 		public Steps Steps {
-			get {
-				return this.steps;
-			}
+			get; private set;
 		}
 
 		private List<DateTime> dates;
@@ -193,7 +191,6 @@ namespace Bareplan.Core {
 		private List<string>.Enumerator enumTasks;
 		private bool hasNext;
 		private DateTime initialDate;
-		private Steps steps;
 	}
 }
 

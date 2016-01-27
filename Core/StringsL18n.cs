@@ -108,7 +108,7 @@ namespace Bareplan.Core {
 				"Agregar &fila",
 				"&Eliminar fila",
 				"Eliminar fe&cha",
-				"Eliminat ta&rea",
+				"Eliminar ta&rea",
 				"&Nuevo",
 				"Idioma",
 				"Fecha de inicio",

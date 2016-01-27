@@ -10,8 +10,9 @@ namespace Bareplan.Core {
 	/// Which means that the first step is in the current day, and the next two days later.
 	/// </summary>
 	public class Steps {
-		public Steps()
+		public Steps(Document doc)
 		{
+			this.Document = doc;
 			this.steps = new List<int>();
 			this.steps.Add( 0 );
 			this.GotoFirstStep();
@@ -69,6 +70,7 @@ namespace Bareplan.Core {
 			}
 
 			this.GotoFirstStep();
+			this.Document.Recalculate();
 			return;
 		}
 
@@ -95,6 +97,10 @@ namespace Bareplan.Core {
 			}
 
 			return toret.ToString().TrimEnd();
+		}
+
+		public Document Document {
+			get; private set;
 		}
 
 		private List<int> steps;
