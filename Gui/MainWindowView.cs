@@ -89,7 +89,13 @@ namespace Bareplan.Gui {
 			var tabPlanning = new TabPage() { ImageIndex = 0 };
 			var tabCalendar = new TabPage() { ImageIndex = 1 };
 			tabPlanning.Controls.Add( this.grdPlanning );
-			this.calendar = new MonthCalendar() { Dock = DockStyle.Fill };
+			this.calendar = new MonthCalendar() {
+				Dock = DockStyle.Fill,
+				ShowToday = false,
+				ShowTodayCircle = false,
+				MaxSelectionCount = 1,
+				ScrollChange = 1
+			};
 			tabCalendar.Controls.Add( this.calendar );
 			this.tabbed.TabPages.Add( tabPlanning );
 			this.tabbed.TabPages.Add( tabCalendar );

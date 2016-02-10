@@ -188,6 +188,7 @@ namespace Bareplan.Gui {
 
 			this.planningFont = new Font( this.planningFont.FontFamily, size );
 			this.UpdateFont( FontStep );
+			this.ChangeToListTab();
 		}
 
 		private void OnDecFont()
@@ -196,6 +197,7 @@ namespace Bareplan.Gui {
 
 			this.planningFont = new Font( this.planningFont.FontFamily, size );
 			this.UpdateFont( FontStep * -1 );
+			this.ChangeToListTab();
 		}
 
 		/// <summary>
@@ -243,6 +245,10 @@ namespace Bareplan.Gui {
 			this.pnlAbout.Show();
 		}
 
+		private void ChangeToListTab() {
+			this.tabbed.SelectedIndex = 0;
+		}
+
 		/// <summary>
 		/// Activates the option for editing the steps for the document.
 		/// </summary>
@@ -252,6 +258,7 @@ namespace Bareplan.Gui {
 				this.edSteps.Text = String.Join( ", ", this.doc.Steps );
 				this.edInitialDate.Value = this.doc.InitialDate;
 				this.pnlConfigContainer.Visible = true;
+				this.ChangeToListTab();
 				this.edSteps.Focus();
 			} else {
 				this.ShowNoDocumentError();
@@ -293,6 +300,7 @@ namespace Bareplan.Gui {
 					+ ": " + this.doc.Dates[ rowNumber ].ToShortDateString() );
 				this.doc.InsertTask( rowNumber );
 				this.UpdatePlanning( rowNumber );
+				this.ChangeToListTab();
 				this.SetStatus();
 			} else {
 				this.ShowNoDocumentError();
@@ -319,6 +327,7 @@ namespace Bareplan.Gui {
 
 				this.doc.InsertRow( rowNumber );
 				this.UpdatePlanning( rowNumber );
+				this.ChangeToListTab();
 				this.SetStatus();
 			} else {
 				this.ShowNoDocumentError();
@@ -345,6 +354,7 @@ namespace Bareplan.Gui {
 
 				this.doc.InsertDate( rowNumber );
 				this.UpdatePlanning( rowNumber );
+				this.ChangeToListTab();
 				this.SetStatus();
 			} else {
 				this.ShowNoDocumentError();
@@ -360,9 +370,10 @@ namespace Bareplan.Gui {
 				DateTime[] boldedDates = new DateTime[ this.doc.CountDates ];
 
 				Console.WriteLine( "Preparing calendar" );
-				this.calendar.SetDate( this.doc.InitialDate );
-				boldedDates.CopyTo( boldedDates, 0 );
+				this.calendar.RemoveAllBoldedDates();
+				this.doc.Dates.CopyTo( boldedDates, 0 );
 				this.calendar.BoldedDates = boldedDates;
+				this.calendar.UpdateBoldedDates();
 			}
 
 			return;
@@ -391,6 +402,7 @@ namespace Bareplan.Gui {
 					+ ": " + strDate + "/" + strTask );
 				this.doc.Remove( rowNumber );
 				this.UpdatePlanning( rowNumber );
+				this.ChangeToListTab();
 				this.SetStatus();
 			} else {
 				this.ShowNoDocumentError();
@@ -417,6 +429,7 @@ namespace Bareplan.Gui {
 					+ ": " + strDate );
 				this.doc.RemoveTask( rowNumber );
 				this.UpdatePlanning( rowNumber );
+				this.ChangeToListTab();
 				this.SetStatus();
 			} else {
 				this.ShowNoDocumentError();
@@ -443,6 +456,7 @@ namespace Bareplan.Gui {
 					+ ": " + strDate );
 				this.doc.RemoveDate( rowNumber );
 				this.UpdatePlanning( rowNumber );
+				this.ChangeToListTab();
 				this.SetStatus();
 			} else {
 				this.ShowNoDocumentError();
@@ -467,6 +481,7 @@ namespace Bareplan.Gui {
 				// Prepare the UI
 				this.grdPlanning.Rows.Add();
 				this.UpdatePlanningRow( rowNumber );
+				this.ChangeToListTab();
 				this.SetStatus();
 			} else {
 				this.ShowNoDocumentError();
@@ -603,6 +618,7 @@ namespace Bareplan.Gui {
 			this.OnClose();
 			this.ActivateGui();
 			this.PrepareNewDocument();
+			this.ChangeToListTab();
 			this.SetStatus();
 		}
 
@@ -612,6 +628,7 @@ namespace Bareplan.Gui {
 			this.DeactivateGui();
 			this.doc = null;
 			this.grdPlanning.Rows.Clear();
+			this.ChangeToListTab();
 			this.SetStatus();
 		}
 
@@ -638,6 +655,7 @@ namespace Bareplan.Gui {
 					this.doc.FileName = dlgOpenFile.FileName;
 
 					this.UpdatePlanning();
+					this.ChangeToListTab();
 					this.ActivateGui();
 				}
 			}
