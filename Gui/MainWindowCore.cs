@@ -70,6 +70,8 @@ namespace Bareplan.Gui {
 			this.opDecFont.Text = StringsL18n.Get( StringsL18n.StringId.OpDecFont );
 
 			this.opAdd.Text = StringsL18n.Get( StringsL18n.StringId.OpAdd );
+			this.opInsert.Text = StringsL18n.Get( StringsL18n.StringId.OpInsert );
+			this.opInsertDate.Text = StringsL18n.Get( StringsL18n.StringId.OpInsertDate );
 			this.opInsertTask.Text = StringsL18n.Get( StringsL18n.StringId.OpInsertTask );
 			this.opRemove.Text = StringsL18n.Get( StringsL18n.StringId.OpRemove );
 			this.opRemoveDate.Text = StringsL18n.Get( StringsL18n.StringId.OpRemoveDate );
@@ -133,6 +135,8 @@ namespace Bareplan.Gui {
 			this.opAdd.Enabled = active;
 			this.opProperties.Enabled = active;
 			this.opInsertTask.Enabled = active;
+			this.opInsertDate.Enabled = active;
+			this.opInsert.Enabled = active;
 			this.opRemove.Enabled = active;
 			this.opRemoveTask.Enabled = active;
 			this.opRemoveDate.Enabled = active;
@@ -277,22 +281,88 @@ namespace Bareplan.Gui {
 			if ( this.doc != null ) {
 				int rowNumber = 0;
 				var row = this.grdPlanning.CurrentRow;
-				string strDate = this.doc.InitialDate.ToShortDateString();
 
+				// Prepare the affected row number
 				this.grdPlanning.EndEdit();
-
 				if ( row != null ) {
 					rowNumber = row.Index;
-					strDate = this.grdPlanning.Rows[ rowNumber ].Cells[ (int) ColsIndex.Date ].ToString();
 				}
 
-				this.SetStatus( StringsL18n.Get( StringsL18n.StringId.StInsertingTask )
-					+ ": " + strDate );
+				// Now do it
+				this.SetStatus( StringsL18n.Get( StringsL18n.StringId.StInserting )
+					+ ": " + this.doc.Dates[ rowNumber ].ToShortDateString() );
 				this.doc.InsertTask( rowNumber );
 				this.UpdatePlanning( rowNumber );
 				this.SetStatus();
 			} else {
 				this.ShowNoDocumentError();
+			}
+
+			return;
+		}
+
+		private void OnInsertRow()
+		{
+			if ( this.doc != null ) {
+				int rowNumber = 0;
+				var row = this.grdPlanning.CurrentRow;
+
+				// Prepare the affected row number
+				this.grdPlanning.EndEdit();
+				if ( row != null ) {
+					rowNumber = row.Index;
+				}
+
+				// Now do it
+				this.SetStatus( StringsL18n.Get( StringsL18n.StringId.StInserting )
+					+ ": " + this.doc.Dates[ rowNumber ].ToShortDateString() );
+
+				this.doc.InsertRow( rowNumber );
+				this.UpdatePlanning( rowNumber );
+				this.SetStatus();
+			} else {
+				this.ShowNoDocumentError();
+			}
+
+			return;
+		}
+
+		private void OnInsertDate()
+		{
+			if ( this.doc != null ) {
+				int rowNumber = 0;
+				var row = this.grdPlanning.CurrentRow;
+
+				// Prepare the affected row number
+				this.grdPlanning.EndEdit();
+				if ( row != null ) {
+					rowNumber = row.Index;
+				}
+
+				// Now do it
+				this.SetStatus( StringsL18n.Get( StringsL18n.StringId.StInserting )
+					+ ": " + this.doc.Dates[ rowNumber ].ToShortDateString() );
+
+				this.doc.InsertDate( rowNumber );
+				this.UpdatePlanning( rowNumber );
+				this.SetStatus();
+			} else {
+				this.ShowNoDocumentError();
+			}
+
+			return;
+		}
+
+		private void OnTabChanged()
+		{
+			if ( this.tabbed.SelectedIndex == 1 ) {
+				// Show the days in the calendar
+				DateTime[] boldedDates = new DateTime[ this.doc.CountDates ];
+
+				Console.WriteLine( "Preparing calendar" );
+				this.calendar.SetDate( this.doc.InitialDate );
+				boldedDates.CopyTo( boldedDates, 0 );
+				this.calendar.BoldedDates = boldedDates;
 			}
 
 			return;
@@ -317,7 +387,7 @@ namespace Bareplan.Gui {
 					strTask = this.grdPlanning.Rows[ rowNumber ].Cells[ (int) ColsIndex.Task ].ToString();
 				}
 
-				this.SetStatus( StringsL18n.Get( StringsL18n.StringId.StRemovingTask )
+				this.SetStatus( StringsL18n.Get( StringsL18n.StringId.StRemoving )
 					+ ": " + strDate + "/" + strTask );
 				this.doc.Remove( rowNumber );
 				this.UpdatePlanning( rowNumber );
@@ -343,7 +413,7 @@ namespace Bareplan.Gui {
 					strDate = this.grdPlanning.Rows[ rowNumber ].Cells[ (int) ColsIndex.Date ].ToString();
 				}
 
-				this.SetStatus(  StringsL18n.Get( StringsL18n.StringId.StRemovingTask ) 
+				this.SetStatus(  StringsL18n.Get( StringsL18n.StringId.StRemoving ) 
 					+ ": " + strDate );
 				this.doc.RemoveTask( rowNumber );
 				this.UpdatePlanning( rowNumber );
@@ -369,7 +439,7 @@ namespace Bareplan.Gui {
 					strDate = this.grdPlanning.Rows[ rowNumber ].Cells[ (int) ColsIndex.Date ].ToString();
 				}
 
-				this.SetStatus( StringsL18n.Get( StringsL18n.StringId.StRemovingTask )
+				this.SetStatus( StringsL18n.Get( StringsL18n.StringId.StRemoving )
 					+ ": " + strDate );
 				this.doc.RemoveDate( rowNumber );
 				this.UpdatePlanning( rowNumber );
@@ -388,7 +458,7 @@ namespace Bareplan.Gui {
 		{
 			if ( this.doc != null ) {
 				int rowNumber = this.doc.CountDates;
-				this.SetStatus( StringsL18n.Get( StringsL18n.StringId.StInsertingTask )
+				this.SetStatus( StringsL18n.Get( StringsL18n.StringId.StInserting )
 					+ ": " + ( rowNumber + 1 ).ToString() );
 
 				// Prepare the document
@@ -412,19 +482,21 @@ namespace Bareplan.Gui {
 
 		private void UpdatePlanning(int numRow)
 		{
-			// Creates & updates rows
-			for (int i = numRow; i < this.doc.CountDates; ++i) {
-				if ( this.grdPlanning.Rows.Count <= i ) {
-					this.grdPlanning.Rows.Add();
+			if ( this.doc != null ) {
+				// Creates & updates rows
+				for (int i = numRow; i < this.doc.CountDates; ++i) {
+					if ( this.grdPlanning.Rows.Count <= i ) {
+						this.grdPlanning.Rows.Add();
+					}
+
+					this.UpdatePlanningRow( i );
 				}
 
-				this.UpdatePlanningRow( i );
-			}
-
-			// Remove padding rows
-			int numExtraRows = this.grdPlanning.Rows.Count - this.doc.CountDates;
-			for(; numExtraRows > 0 ; --numExtraRows) {
-				this.grdPlanning.Rows.RemoveAt( this.doc.CountDates );
+				// Remove padding rows
+				int numExtraRows = this.grdPlanning.Rows.Count - this.doc.CountDates;
+				for(; numExtraRows > 0 ; --numExtraRows) {
+					this.grdPlanning.Rows.RemoveAt( this.doc.CountDates );
+				}
 			}
 
 			return;

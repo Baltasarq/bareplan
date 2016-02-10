@@ -1,2 +1,1 @@
-﻿- Al eliminar una fecha, o cualquier otra edición, terminar primero la edición de la celda.
-- Poder insertar también una fecha.
+﻿

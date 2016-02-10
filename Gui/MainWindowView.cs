@@ -81,12 +81,28 @@ namespace Bareplan.Gui {
 			this.grdPlanning.TabIndex = 3;
 			this.grdPlanning.AllowUserToOrderColumns = false;
 
-			this.pnlPlanning = new Panel();
+			// Create tabbed control
+			this.tabbed = new TabControl() { Dock = DockStyle.Fill, Alignment = TabAlignment.Bottom };
+			this.tabbed.ImageList = new ImageList();
+			this.tabbed.ImageList.Images.AddRange( new Image[]{ this.listIcon, this.calendarViewIcon } );
+			this.tabbed.ImageList.ImageSize = new Size( 16, 16 );
+			var tabPlanning = new TabPage() { ImageIndex = 0 };
+			var tabCalendar = new TabPage() { ImageIndex = 1 };
+			tabPlanning.Controls.Add( this.grdPlanning );
+			this.calendar = new MonthCalendar() { Dock = DockStyle.Fill };
+			tabCalendar.Controls.Add( this.calendar );
+			this.tabbed.TabPages.Add( tabPlanning );
+			this.tabbed.TabPages.Add( tabCalendar );
+			this.tabbed.SelectedIndex = 0;
+			this.tabbed.SelectedIndexChanged += (obj, evt) => {
+				this.OnTabChanged();
+			};
+
+			// Layout
+			this.pnlPlanning = new Panel() { Dock = DockStyle.Fill };
 			this.pnlPlanning.SuspendLayout();
-			this.pnlPlanning.Dock = DockStyle.Fill;
-			this.pnlPlanningContainer = new Panel();
-			this.pnlPlanningContainer.Dock = DockStyle.Fill;
-			this.pnlPlanningContainer.Controls.Add( this.grdPlanning );
+			this.pnlPlanningContainer = new Panel() { Dock = DockStyle.Fill };
+			this.pnlPlanningContainer.Controls.Add( this.tabbed );
 			this.pnlPlanning.Controls.Add( this.pnlPlanningContainer );
 		}
 
@@ -175,7 +191,7 @@ namespace Bareplan.Gui {
 
 		private void BuildMainMenu()
 		{
-			// Menu
+			// Menu options
 			this.mMain = new MainMenu();
 			this.mFile = new MenuItem( "&Archivo" );
 			this.mHelp = new MenuItem( "&Ayuda" );
@@ -192,12 +208,16 @@ namespace Bareplan.Gui {
 			this.opAdd = new MenuItem( "&Agregar fila" );
 			this.opProperties = new MenuItem( "&Propiedades" );
 			this.opInsertTask = new MenuItem( "&Insertar tarea" );
+			this.opInsert = new MenuItem( "&Insertar fila" );
+			this.opInsertDate = new MenuItem( "&Insertar fecha" );
 			this.opRemove = new MenuItem( "Eliminar &fila" );
 			this.opRemoveTask = new MenuItem( "Eliminar &tarea" );
 			this.opRemoveDate = new MenuItem( "Eliminar f&echa" );
 			this.opIncFont = new MenuItem( "&Incrementar fuente" );
 			this.opDecFont = new MenuItem( "&Decrementar fuente" );
 			this.opSettings = new MenuItem( "&Preferencias" );
+
+			// Build the menu
 			this.mMain.MenuItems.Add( this.mFile );
 			this.mMain.MenuItems.Add( this.mView );
 			this.mMain.MenuItems.Add( this.mEdit );
@@ -212,19 +232,28 @@ namespace Bareplan.Gui {
 			this.mView.MenuItems.Add( this.opDecFont );
 			this.mView.MenuItems.Add( this.opIncFont );
 			this.mEdit.MenuItems.Add( this.opAdd );
+			this.mEdit.MenuItems.Add( "-" );
+			this.mEdit.MenuItems.Add( this.opInsert );
 			this.mEdit.MenuItems.Add( this.opInsertTask );
+			this.mEdit.MenuItems.Add( this.opInsertDate );
+			this.mEdit.MenuItems.Add( "-" );
 			this.mEdit.MenuItems.Add( this.opRemove );
 			this.mEdit.MenuItems.Add( this.opRemoveTask );
 			this.mEdit.MenuItems.Add( this.opRemoveDate );
+			this.mEdit.MenuItems.Add( "-" );
 			this.mEdit.MenuItems.Add( this.opProperties );
 			this.mEdit.MenuItems.Add( this.opSettings );
 			this.mHelp.MenuItems.Add( this.opAbout );
+
+			// Shortcuts
 			this.opQuit.Shortcut = Shortcut.CtrlQ;
 			this.opNew.Shortcut = Shortcut.CtrlN;
 			this.opOpen.Shortcut = Shortcut.CtrlO;
 			this.opSave.Shortcut = Shortcut.CtrlS;
 			this.opAdd.Shortcut = Shortcut.CtrlIns;
 			this.opProperties.Shortcut = Shortcut.F2;
+
+			// Events
 			this.opQuit.Click += ( obj, evt ) => this.OnQuit();
 			this.opAbout.Click += ( obj, evt ) => this.OnAbout();
 			this.opExport.Click += ( obj, evt ) => this.OnExport();
@@ -235,7 +264,9 @@ namespace Bareplan.Gui {
 			this.opClose.Click += ( obj, evt ) => this.OnClose();
 			this.opAdd.Click += ( obj, evt ) => this.OnAdd();
 			this.opProperties.Click += ( obj, evt ) => this.OnProperties();
+			this.opInsert.Click += (sender, e) => this.OnInsertRow();
 			this.opInsertTask.Click += ( obj, evt ) => this.OnInsertTask();
+			this.opInsertDate.Click += (sender, e) => this.OnInsertDate();
 			this.opRemove.Click += ( obj, evt ) => this.OnRemove();
 			this.opRemoveTask.Click += ( obj, evt ) => this.OnRemoveTask();
 			this.opRemoveDate.Click += ( obj, evt ) => this.OnRemoveDate();
@@ -510,17 +541,17 @@ namespace Bareplan.Gui {
 										(int) Math.Floor( width *.70 ); // Task
 		}
 
-		private Bitmap bmpAppIcon = null;
-		private Bitmap addRowIcon = null;
-		private Bitmap calendarViewIcon = null;
-		private Bitmap exportIcon = null;
-		private Bitmap listIcon = null;
-		private Bitmap newIcon = null;
-		private Bitmap openIcon = null;
-		private Bitmap propertiesIcon = null;
-		private Bitmap saveAsIcon = null;
-		private Bitmap saveIcon = null;
-		private Bitmap settingsIcon = null;
+		private Bitmap bmpAppIcon;
+		private Bitmap addRowIcon;
+		private Bitmap calendarViewIcon;
+		private Bitmap exportIcon;
+		private Bitmap listIcon;
+		private Bitmap newIcon;
+		private Bitmap openIcon;
+		private Bitmap propertiesIcon;
+		private Bitmap saveAsIcon;
+		private Bitmap saveIcon;
+		private Bitmap settingsIcon;
 
 		private ToolBarButton tbbAddRow;
 		private ToolBarButton tbbExport;
@@ -531,45 +562,49 @@ namespace Bareplan.Gui {
 		private ToolBarButton tbbSave;
 		private ToolBarButton tbbSettings;
 
-		private DataGridView grdPlanning = null;
-		private Panel pnlPlanningContainer = null;
-		private Panel pnlConfigContainer = null;
-		private TableLayoutPanel pnlSettings = null;
-		private MainMenu mMain = null;
-		private StatusBar stbStatus = null;
-		private Panel pnlAbout = null;
-		private Panel pnlPlanning = null;
-		private Label lblLocales = null;
-		private ComboBox cbLocales = null;
-		private MenuItem mFile = null;
-		private MenuItem mEdit = null;
-		private MenuItem mView = null;
-		private MenuItem mHelp = null;
-		private MenuItem opExport = null;
-		private MenuItem opProperties = null;
-		private MenuItem opNew = null;
-		private MenuItem opOpen = null;
-		private MenuItem opSave = null;
-		private MenuItem opSaveAs = null;
-		private MenuItem opClose = null;
-		private MenuItem opQuit = null;
-		private MenuItem opAdd = null;
-		private MenuItem opAbout = null;
-		private MenuItem opSettings = null;
-		private Label lblAbout = null;
-		private Label lblInitialDate = null;
-		private Label lblSteps = null;
-		private TextBox edSteps = null;
-		private DateTimePicker edInitialDate = null;
-		private Font defaultFont = null;
-		private Font planningFont = null;
-		private MenuItem opInsertTask = null;
-		private MenuItem opRemove = null;
-		private MenuItem opRemoveTask = null;
-		private MenuItem opRemoveDate = null;
-		private MenuItem opIncFont = null;
-		private MenuItem opDecFont = null;
+		private DataGridView grdPlanning;
+		private Panel pnlPlanningContainer;
+		private Panel pnlConfigContainer;
+		private TableLayoutPanel pnlSettings;
+		private MainMenu mMain;
+		private StatusBar stbStatus;
+		private Panel pnlAbout;
+		private Panel pnlPlanning;
+		private Label lblLocales;
+		private ComboBox cbLocales;
+		private MonthCalendar calendar;
+		private MenuItem mFile;
+		private MenuItem mEdit;
+		private MenuItem mView;
+		private MenuItem mHelp;
+		private MenuItem opExport;
+		private MenuItem opProperties;
+		private MenuItem opNew;
+		private MenuItem opOpen;
+		private MenuItem opSave;
+		private MenuItem opSaveAs;
+		private MenuItem opClose;
+		private MenuItem opQuit;
+		private MenuItem opAdd;
+		private MenuItem opAbout;
+		private MenuItem opSettings;
+		private Label lblAbout;
+		private Label lblInitialDate;
+		private Label lblSteps;
+		private TextBox edSteps;
+		private DateTimePicker edInitialDate;
+		private Font defaultFont;
+		private Font planningFont;
+		private MenuItem opInsertTask;
+		private MenuItem opInsertDate;
+		private MenuItem opInsert;
+		private MenuItem opRemove;
+		private MenuItem opRemoveTask;
+		private MenuItem opRemoveDate;
+		private MenuItem opIncFont;
+		private MenuItem opDecFont;
 		private ToolBar tbBar;
+		private TabControl tabbed;
 	}
 }
 

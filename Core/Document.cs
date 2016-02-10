@@ -40,15 +40,30 @@ namespace Bareplan.Core {
 			this.tasks[ rowNumber ] = task;
 		}
 
+		public void InsertRow(int i)
+		{
+			this.tasks.Insert( i, TaskTag + ( i + 1 ).ToString() );
+			this.dates.Insert( i, this.dates[ i ] );
+		}
+
 		public void InsertTask(int i)
 		{
-			InsertTask( i, TaskTag + ( i + 1 ).ToString() );
+			this.InsertTask( i, TaskTag + ( i + 1 ).ToString() );
 		}
 
 		public void InsertTask(int i, string task)
 		{
 			this.tasks.Insert( i, task );
 			this.dates.Add( this.LastDate.AddDays( this.Steps.NextStep ) );
+		}
+
+		public void InsertDate(int rowNumber)
+		{
+			int count = this.tasks.Count;
+
+			// Insert
+			this.dates.Insert( rowNumber, this.dates[ rowNumber ] );
+			this.tasks.Add( TaskTag + ( count + 1 ).ToString() );
 		}
 
 		public void Remove(int i)
