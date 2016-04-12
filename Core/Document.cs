@@ -200,6 +200,34 @@ namespace Bareplan.Core {
 			get; private set;
 		}
 
+		/// <summary>
+		/// Looks for tasks in the given date.
+		/// </summary>
+		/// <returns>A vector with the positions of the tasks.</returns>
+		/// <param name="date">A DateTime object, containing the date to look for.</param>
+		public int[] LookForTasksIn(DateTime date)
+		{
+			var toret = new List<int>();
+			int pos = 0;
+
+			System.Console.WriteLine("-- Looking for: " + date);
+			while( pos < this.dates.Count ) {
+				System.Console.WriteLine("Considering " + this.dates[pos]);
+				// There are no more possible matching dates (they are sorted).
+				if ( this.dates[ pos ] > date ) {
+					break;
+				}
+
+				if ( this.dates[ pos ] == date ) {
+					toret.Add( pos );
+				}
+					
+				++pos;
+			}
+
+			return toret.ToArray();
+		}
+
 		private List<DateTime> dates;
 		private List<string> tasks;
 		private List<DateTime>.Enumerator enumDates;

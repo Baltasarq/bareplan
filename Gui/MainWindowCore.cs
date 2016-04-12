@@ -250,6 +250,20 @@ namespace Bareplan.Gui {
 		}
 
 		/// <summary>
+		/// Raises the calendar date changed event.
+		/// </summary>
+		private void OnCalendarDateChanged() {
+			int[] taskPositionsForDate = this.doc.LookForTasksIn( this.calendar.SelectionStart );
+
+			this.txtDesc.Clear();
+			foreach(int x in taskPositionsForDate) {
+				this.txtDesc.AppendText( this.doc.Tasks[x] + '\n' );
+			}
+
+			return;
+		}
+
+		/// <summary>
 		/// Activates the option for editing the steps for the document.
 		/// </summary>
 		private void OnProperties()

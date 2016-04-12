@@ -6,6 +6,6 @@ namespace Bareplan.Core
 	{
 		public const string Name = "bareplan";
 		public const string Author = "baltasarq@gmail.com";
-		public const string Version = "0.5 20160210";
+		public const string Version = "0.6 20160412";
 	}
 }

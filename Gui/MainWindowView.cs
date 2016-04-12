@@ -22,6 +22,29 @@ namespace Bareplan.Gui {
 			this.OnIncFont();
 		}
 
+		private void BuildCalendarTab(Panel panel)
+		{
+			this.calendar = new MonthCalendar() {
+				Dock = DockStyle.Top,
+				ShowToday = false,
+				ShowTodayCircle = false,
+				MaxSelectionCount = 1,
+				ScrollChange = 1
+			};
+
+			this.calendar.DateSelected += (sender, e) => this.OnCalendarDateChanged();
+
+			this.txtDesc = new TextBox() {
+				Dock = DockStyle.Fill,
+				ReadOnly = true,
+				Multiline = true
+			};
+
+			panel.Dock = DockStyle.Fill;
+			panel.Controls.Add( this.txtDesc );
+			panel.Controls.Add( this.calendar );
+		}
+
 		private void BuildPlanning()
 		{
 			// Prepare the list of events
@@ -89,14 +112,9 @@ namespace Bareplan.Gui {
 			var tabPlanning = new TabPage() { ImageIndex = 0 };
 			var tabCalendar = new TabPage() { ImageIndex = 1 };
 			tabPlanning.Controls.Add( this.grdPlanning );
-			this.calendar = new MonthCalendar() {
-				Dock = DockStyle.Fill,
-				ShowToday = false,
-				ShowTodayCircle = false,
-				MaxSelectionCount = 1,
-				ScrollChange = 1
-			};
-			tabCalendar.Controls.Add( this.calendar );
+			var pnlCalendar = new Panel();
+			this.BuildCalendarTab( pnlCalendar );
+			tabCalendar.Controls.Add( pnlCalendar );
 			this.tabbed.TabPages.Add( tabPlanning );
 			this.tabbed.TabPages.Add( tabCalendar );
 			this.tabbed.SelectedIndex = 0;
@@ -611,6 +629,7 @@ namespace Bareplan.Gui {
 		private MenuItem opDecFont;
 		private ToolBar tbBar;
 		private TabControl tabbed;
+		private TextBox txtDesc;
 	}
 }
 
