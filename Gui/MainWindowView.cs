@@ -155,18 +155,29 @@ namespace Bareplan.Gui {
 			var pnlSteps = new Panel();
 			pnlSteps.SuspendLayout();
 			pnlSteps.Dock = DockStyle.Left;
-			this.lblSteps = new Label();
-			this.lblSteps.Text = "Pasos:";
-			this.lblSteps.Dock = DockStyle.Left;
-			this.edSteps = new TextBox();
-			this.edSteps.Dock = DockStyle.Fill;
+			var btBuilder = new Button() { Text = "...", Dock = DockStyle.Right };
+			this.lblSteps = new Label() { Text = "Pasos:", Dock = DockStyle.Left} ;
+			this.edSteps = new TextBox() { Dock = DockStyle.Fill };
+
+			// End when pressing enter
 			this.edSteps.KeyDown += delegate(object obj, KeyEventArgs args) {
 				if ( args.KeyCode == Keys.Enter ) {
 					this.OnPropertiesPanelClosed();
 				}
 			};
+
+			// Opens a GUI helper
+			btBuilder.Click += (sender, e) => {
+				var dlg = new StepsBuilder( this );
+				if ( dlg.ShowDialog() == DialogResult.OK ) {
+					this.edSteps.Text = dlg.Result;
+				}
+			};
+
+			btBuilder.MaximumSize = btBuilder.Size = new Size( charSize * btBuilder.Text.Length, this.edSteps.Height );
 			pnlSteps.Controls.Add( this.edSteps );
 			pnlSteps.Controls.Add( this.lblSteps );
+			pnlSteps.Controls.Add( btBuilder );
 			pnlSteps.ResumeLayout( false );
 
 			// Initial date

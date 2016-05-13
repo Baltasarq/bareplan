@@ -53,6 +53,7 @@
     <Compile Include="Gui\MainWindowCore.cs" />
     <Compile Include="Gui\MainWindowView.cs" />
     <Compile Include="Core\Steps.cs" />
+    <Compile Include="Gui\StepsBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Gui\" />
