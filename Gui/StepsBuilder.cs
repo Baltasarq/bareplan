@@ -1,50 +1,87 @@
 ﻿using System;
-using System.Text;
+using System.Diagnostics;
 using System.Drawing;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace Bareplan.Gui {
 	public class StepsBuilder: Form {
-		public StepsBuilder(Form parent)
+		public StepsBuilder(Form parent, string currentSteps)
 		{
 			this.steps = new List<int>();
 			this.Icon = parent.Icon;
 			this.Build();
+			
+			Array.ForEach( currentSteps.Trim().Split( ',' ), (x) => this.steps.Add( int.Parse( x ) ) );
+			this.UpdateSteps();
+		}
+		
+		private void BuildIcons()
+		{
+			try {
+				this.addIcon = new Bitmap(
+					System.Reflection.Assembly.GetEntryAssembly( ).
+						GetManifestResourceStream( "bareplan.Res.addIcon.png" ) );
+						
+				this.removeIcon = new Bitmap(
+					System.Reflection.Assembly.GetEntryAssembly( ).
+						GetManifestResourceStream( "bareplan.Res.removeIcon.png" ) );
+			} catch(Exception e)
+			{
+				Debug.WriteLine( "ERROR loading icons: " + e.Message);
+			}
+
 		}
 
 		private void BuildPanelStep()
 		{
-			var pnlPanel = new FlowLayoutPanel() { Dock = DockStyle.Top };
-			var spStep = new NumericUpDown() { Minimum = 0, Maximum = 365, Dock = DockStyle.Left };
-			var btDelete = new Button() { Text = "X", Dock = DockStyle.Right };
+			var pnlSteps = new FlowLayoutPanel() { Dock = DockStyle.Top };
+			pnlSteps.SuspendLayout();
+			var lblSteps = new Label() { Text = "Steps (in days)", Dock = DockStyle.Right };
 
-			pnlPanel.Controls.Add( spStep );
-			pnlPanel.Controls.Add( btDelete );
-			spStep.MaximumSize = new Size( (int) this.fontSize.Width * 3, (int) this.fontSize.Height + 5 );
-			btDelete.MaximumSize = spStep.MaximumSize;
+			this.spStep = new NumericUpDown { Minimum = 0, Maximum = 365, Dock = DockStyle.Fill };
+			this.spStep.MaximumSize = new Size( (int) this.fontSize.Width * 3, (int) this.fontSize.Height + 5 );
 
-			this.pnlMain.Controls.Add( pnlPanel );
+			pnlSteps.Controls.Add( spStep );
+			pnlSteps.Controls.Add( lblSteps );
+			pnlSteps.ResumeLayout( true );
+			this.pnlMain.Controls.Add( pnlSteps );
+			pnlSteps.MaximumSize = new Size( int.MaxValue, (int) this.fontSize.Height * 2 );
 		}
 
-		private void BuildControlPanel() {
-			this.btMore = new Button() { Text = "+", Dock = DockStyle.Left };
-			var lblSteps = new Label() { Text = "Steps (in days)", Dock = DockStyle.Right };
-			this.pnlMain = new TableLayoutPanel() { Dock = DockStyle.Fill, AutoScroll = true };
-			var topPanel = new FlowLayoutPanel() { Dock = DockStyle.Top };
+		private void BuildControlButtons()
+		{
+			var imgList = new ImageList { ImageSize = new Size( 16, 16 ) };
+			
+			imgList.Images.AddRange( new []{ this.addIcon, this.removeIcon } );
+			this.btMore = new Button { ImageList = imgList, ImageIndex = 0, Dock = DockStyle.Top };
+			this.btDelete = new Button { ImageList = imgList, ImageIndex = 1, Dock = DockStyle.Top };
+			
+			var buttonsPanel = new TableLayoutPanel { Dock = DockStyle.Bottom };
 
-			topPanel.Controls.Add( this.btMore );
-			topPanel.Controls.Add( lblSteps );
+			buttonsPanel.Controls.Add( this.btMore );
+			buttonsPanel.Controls.Add( this.btDelete );
 
-			this.pnlMain.Controls.Add( topPanel );
-			this.Controls.Add( this.pnlMain );
-
-			this.BuildPanelStep();
-			this.BuildPanelStep();
+			this.pnlMain.Controls.Add( buttonsPanel );
+			buttonsPanel.MaximumSize = new Size( int.MaxValue, (int) this.fontSize.Height * 4 );
+			
+			this.btMore.Click += (o, args) => {
+				this.steps.Add( (int) this.spStep.Value );
+				this.UpdateSteps();
+			};
+			this.btDelete.Click += (o, args) => {
+				if ( this.steps.Count > 0 ) {
+					this.steps.RemoveAt( this.steps.Count - 1 );
+				}
+				
+				this.UpdateSteps();
+			};
 		}
 
 		private void Build()
 		{
+			this.BuildIcons();
+			
 			// Sizes
 			this.defaultFont = new Font( 
 				System.Drawing.SystemFonts.DefaultFont.FontFamily,
@@ -53,57 +90,76 @@ namespace Bareplan.Gui {
 			Graphics grf = this.CreateGraphics();
 			this.fontSize = grf.MeasureString( "M", this.defaultFont );
 
-			this.txtTest = new TextBox() {
+			this.txtTest = new TextBox {
 					Multiline = true,
 					Dock = DockStyle.Right,
 					ReadOnly = true };
-			this.btOk = new Button() {
+			this.btOk = new Button {
 					Text = "Ok",
 					Dock = DockStyle.Bottom,
 					DialogResult = DialogResult.OK };
-			this.btCancel = new Button() {
+			this.btCancel = new Button {
 					Text = "Cancel",
 					Dock = DockStyle.Bottom,
 					DialogResult = DialogResult.Cancel };
 
-			this.BuildControlPanel();
+			// Main panel
+			this.pnlMain = new Panel() { Dock = DockStyle.Fill };
+			this.pnlMain.SuspendLayout();
+
+			this.BuildPanelStep();
+			this.BuildControlButtons();
 
 			var pnlButtons = new FlowLayoutPanel(){ Dock = DockStyle.Bottom };
-			pnlButtons.MinimumSize = new Size( int.MaxValue, this.btOk.Height + 10 );
 			pnlButtons.FlowDirection = FlowDirection.RightToLeft;
 
-			this.Controls.Add( txtTest );
+			this.pnlMain.Controls.Add( txtTest );
 			pnlButtons.Controls.Add( btOk );
 			pnlButtons.Controls.Add( btCancel );
-			this.Controls.Add( pnlButtons );
 			this.Text = "Steps builder";
 			this.StartPosition = FormStartPosition.CenterParent;
-			this.MinimumSize = new Size( 320, 200 );
+			this.Controls.Add( this.pnlMain );
+			this.pnlMain.ResumeLayout( true );
+			this.Controls.Add( pnlButtons );
+			pnlButtons.MaximumSize = new Size( int.MaxValue, (int) this.fontSize.Height * 3 );
+			this.pnlMain.MaximumSize = new Size( int.MaxValue, (int) this.fontSize.Height * 2 );
+			this.MaximumSize = new Size( int.MaxValue, (int) ( ( (double) ( this.pnlMain.MaximumSize.Height + pnlButtons.MaximumSize.Height ) ) * 1.5 ) );
+			this.MinimumSize = new Size( this.Width, this.MaximumSize.Height );
 		}
 
 		public String Result {
 			get {
-				StringBuilder toret = new StringBuilder();
-
-				this.steps.ForEach( (x) => { toret.Append( x ); toret.Append( ',' ); } );
+				string toret = String.Join( ", ", this.steps );
 
 				if ( toret.Length == 0 ) {
-					toret.Append( "0" );
+					toret = "0";
 				}
 
-				return toret.ToString();
+				return toret;
 			}
+		}
+		
+		private void UpdateSteps()
+		{
+			this.txtTest.Text = String.Join( ", ", this.steps );
+			this.txtTest.SelectionLength = 0;
+			this.txtTest.SelectionStart = this.txtTest.TextLength;
 		}
 
 		private List<int> steps;
 
 		private TextBox txtTest;
+		private NumericUpDown spStep;
 		private Button btOk;
 		private Button btCancel;
 		private Button btMore;
-		private TableLayoutPanel pnlMain;
+		private Button btDelete;
+		private Panel pnlMain;
 		private SizeF fontSize;
 		private Font defaultFont;
+		
+		private Bitmap addIcon;
+		private Bitmap removeIcon;
 	}
 }
 

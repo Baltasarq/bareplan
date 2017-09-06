@@ -27,18 +27,15 @@ namespace Bareplan.Gui {
 				this.OnSave();
 				break;
 			case 3:
-				this.OnSaveAs();
-				break;
-			case 4:
 				this.OnExport();
 				break;
-			case 5:
+			case 4:
 				this.OnAdd();
 				break;
-			case 6:
+			case 5:
 				this.OnProperties();
 				break;
-			case 7:
+			case 6:
 				this.OnSettings();
 				break;
 			default:
@@ -124,8 +121,7 @@ namespace Bareplan.Gui {
 		private void EnableGui(bool active)
 		{
 			// Widgets
-			this.grdPlanning.Enabled = active;
-			this.pnlPlanningContainer.Visible = active;
+			this.pnlPlanning.Visible = active;
 
 			// Menus
 			this.opExport.Enabled = active;
@@ -146,7 +142,6 @@ namespace Bareplan.Gui {
 			// Toolbar
 			this.tbbSave.Enabled = active;
 			this.tbbProperties.Enabled = active;
-			this.tbbSaveAs.Enabled = active;
 			this.tbbExport.Enabled = active;
 			this.tbbAddRow.Enabled = active;
 		}
@@ -218,7 +213,7 @@ namespace Bareplan.Gui {
 			// Change grid
 			this.grdPlanning.Font = this.planningFont;
 			this.grdPlanning.DefaultCellStyle.Font = this.planningFont;
-			this.grdPlanning.ColumnHeadersDefaultCellStyle.Font = new Font( this.planningFont, FontStyle.Bold );;
+			this.grdPlanning.ColumnHeadersDefaultCellStyle.Font = new Font( this.planningFont, FontStyle.Bold );
 			this.grdPlanning.ColumnHeadersHeight = this.planningFont.Height * 2;
 
 			foreach(DataGridViewTextBoxColumn col in this.grdPlanning.Columns) {
@@ -270,6 +265,8 @@ namespace Bareplan.Gui {
 		{
 			if ( this.doc != null ) {
 				this.edSteps.Text = String.Join( ", ", this.doc.Steps );
+				this.edSteps.SelectionLength = 0;
+				this.edSteps.SelectionStart = this.edSteps.TextLength;
 				this.edInitialDate.Value = this.doc.InitialDate;
 				this.pnlConfigContainer.Visible = true;
 				this.ChangeToListTab();
@@ -557,30 +554,28 @@ namespace Bareplan.Gui {
 		}
 
 		/// <summary>
-		/// Raises the cell edited event.
+		/// Gets the keyed value for date and task, and prepares and assigns them.
 		/// </summary>
 		/// <param name="row">The row index the edited cell sits in.</param>
-		/// <param name="col">The column index the edited cell sits in.</param>
-		private void OnCellEdited(int row, int col)
+		private void OnRowEdited(int row)
 		{
-			DateTime date;
-			string strDate =(string) this.grdPlanning.Rows[ row ].Cells[ (int) ColsIndex.Date ].Value;
+			string strDate = (string)this.grdPlanning.Rows [row].Cells [(int)ColsIndex.Date].Value;
 			string strTask = (string) this.grdPlanning.Rows[ row ].Cells[ (int) ColsIndex.Task ].Value;
 
 			// Convert date
 			if ( strDate == null
-				|| strDate.Trim().Length == 0 )
+			  || strDate.Trim().Length == 0 )
 			{
 				strDate = "";
 			}
 
 			if ( strTask == null
-				|| strTask.Trim().Length == 0 )
+			  || strTask.Trim().Length == 0 )
 			{
 				strTask = Document.TaskTag + ( row + 1 ).ToString();
 			}
 
-			if ( !DateTime.TryParse( strDate, out date ) ) {
+			if ( !DateTime.TryParse( strDate, out DateTime date ) ) {
 				date = this.doc.InitialDate;
 			}
 
@@ -634,16 +629,23 @@ namespace Bareplan.Gui {
 			this.PrepareNewDocument();
 			this.ChangeToListTab();
 			this.SetStatus();
+			this.SetWindowTitle( "nonamed.bar" );
 		}
 
 		private void OnClose()
 		{
-			this.OnSave();
+			if ( this.doc != null
+			  && this.doc.NeedsSaving )
+			{
+				this.OnSave();
+			}
+			
 			this.DeactivateGui();
 			this.doc = null;
 			this.grdPlanning.Rows.Clear();
 			this.ChangeToListTab();
 			this.SetStatus();
+			this.SetWindowTitle( "" );
 		}
 
 		private void OnOpen()
@@ -667,6 +669,7 @@ namespace Bareplan.Gui {
 					DocumentPersistence docLoader = new XmlDocumentPersistence( null );
 					this.doc = docLoader.Load( dlgOpenFile.FileName );
 					this.doc.FileName = dlgOpenFile.FileName;
+					this.SetWindowTitle( this.doc.FileName );
 
 					this.UpdatePlanning();
 					this.ChangeToListTab();
@@ -701,11 +704,23 @@ namespace Bareplan.Gui {
 
 			return;
 		}
+		
+		private void SetWindowTitle(string fileName)
+		{
+			if ( !string.IsNullOrWhiteSpace( fileName ) ) {
+				this.Text = Path.GetFileName( fileName ) + " - " + AppInfo.Name;
+			} else {
+				this.Text = AppInfo.Name;
+			}
+			
+			return;
+		}
 
 		private void Save(string fileName)
 		{
 			try {
 				if ( this.doc != null ) {
+					this.SetWindowTitle( fileName );
 					this.doc.FileName = fileName;
 					DocumentPersistence docSaver = new XmlDocumentPersistence( this.doc );
 					docSaver.Save( fileName );
@@ -744,21 +759,22 @@ namespace Bareplan.Gui {
 		private void OnSave()
 		{
 			if ( this.doc != null ) {
-				var dlgSaveFile = new SaveFileDialog( );
 				bool saveIt = true;
 				string fileName = this.doc.FileName;
 
 				if ( !this.doc.HasName ) {
 					saveIt = false;
-					dlgSaveFile.Title = AppInfo.Name;
-					dlgSaveFile.DefaultExt = XmlDocumentPersistence.DefaultExt;
-					dlgSaveFile.CheckPathExists = true;
-					dlgSaveFile.CheckFileExists = false;
-					dlgSaveFile.Filter = AppInfo.Name
+					var dlgSaveFile = new SaveFileDialog () {
+						Title = AppInfo.Name,
+						DefaultExt = XmlDocumentPersistence.DefaultExt,
+						CheckPathExists = true,
+						CheckFileExists = false,
+						Filter = AppInfo.Name
 						+ " (*." + XmlDocumentPersistence.DefaultExt + ")"
-						+ "|*." + XmlDocumentPersistence.DefaultExt;
-					dlgSaveFile.InitialDirectory = filePath;
-
+						+ "|*." + XmlDocumentPersistence.DefaultExt,
+						InitialDirectory = filePath
+					};
+					
 					if ( dlgSaveFile.ShowDialog( ) == DialogResult.OK ) {
 						saveIt = true;
 						fileName = dlgSaveFile.FileName;
@@ -775,7 +791,25 @@ namespace Bareplan.Gui {
 
 		private void OnSaveAs()
 		{
-			this.SetStatus();
+			if ( this.doc != null ) {
+				var dlgSaveFile = new SaveFileDialog () {
+					Title = AppInfo.Name,
+					DefaultExt = XmlDocumentPersistence.DefaultExt,
+					CheckPathExists = true,
+					CheckFileExists = false,
+					Filter = AppInfo.Name
+					+ " (*." + XmlDocumentPersistence.DefaultExt + ")"
+					+ "|*." + XmlDocumentPersistence.DefaultExt,
+					InitialDirectory = filePath
+				};
+				
+				if (dlgSaveFile.ShowDialog() == DialogResult.OK ) {
+					this.filePath = dlgSaveFile.FileName;
+					this.Save( this.filePath );
+				}
+			}
+
+			return;
 		}
 
 		/// <summary>
@@ -827,19 +861,22 @@ namespace Bareplan.Gui {
 					int pos = line.IndexOf( '=' );
 					string arg = line.Substring( pos + 1 ).Trim();
 
-					if ( line.ToLower().StartsWith( EtqWidth ) ) {
+					if ( line.ToLower().StartsWith( EtqWidth, StringComparison.CurrentCultureIgnoreCase ) )
+					{
 						if ( pos > 0 ) {
 							this.CfgWidth = Convert.ToInt32( arg );
 						}
 					}
 					else
-						if ( line.ToLower().StartsWith( EtqHeight ) ) {
+						if ( line.ToLower().StartsWith( EtqHeight, StringComparison.CurrentCultureIgnoreCase ) )
+						{
 							if ( pos > 0 ) {
 								this.CfgHeight = Convert.ToInt32( arg );
 							}
 						}
 						else
-							if ( line.ToLower().StartsWith( EtqLocale ) ) {
+							if ( line.ToLower().StartsWith( EtqLocale, StringComparison.CurrentCultureIgnoreCase ) )
+							{
 								if ( pos > 0 ) {
 									Locale.SetLocale( arg );
 								}
@@ -913,9 +950,9 @@ namespace Bareplan.Gui {
 			get; set;
 		}
 
-		private Document doc = null;
-		private string filePath = "";
-		private string cfgFile = "";
+		private Document doc;
+		private string filePath;
+		private string cfgFile;
 
 	}
 }

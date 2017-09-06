@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Globalization;
+using System.Diagnostics;
 
 using Bareplan.Core;
 
@@ -16,6 +17,9 @@ namespace Bareplan.Gui {
 
 		public MainWindow()
 		{
+			this.cfgFile = this.filePath = "";
+			this.doc = null;
+		
 			this.Shown += (sender, e) => this.OnShow();
 			this.Build();
 			this.DeactivateGui();
@@ -48,46 +52,58 @@ namespace Bareplan.Gui {
 		private void BuildPlanning()
 		{
 			// Prepare the list of events
-			this.grdPlanning = new DataGridView();
-			this.grdPlanning.AllowUserToResizeRows = false;
-			this.grdPlanning.RowHeadersVisible = false;
-			this.grdPlanning.AutoGenerateColumns = false;
-			this.grdPlanning.MultiSelect = false;
-			this.grdPlanning.AllowUserToAddRows = false;
+			this.grdPlanning = new DataGridView {
+				AllowUserToResizeRows = false,
+				RowHeadersVisible = false,
+				AutoGenerateColumns = false,
+				MultiSelect = false,
+				AllowUserToAddRows = false,
+			};
+			this.grdPlanning.RowHeadersDefaultCellStyle.BackColor = Color.LightGray;
+			this.grdPlanning.RowHeadersDefaultCellStyle.ForeColor = Color.Black;
+			this.grdPlanning.ColumnHeadersDefaultCellStyle.BackColor = Color.LightGray;
+			this.grdPlanning.ColumnHeadersDefaultCellStyle.ForeColor = Color.Black;
 			this.planningFont = new Font( this.grdPlanning.Font, FontStyle.Regular );
 			var textCellTemplate0 = new DataGridViewTextBoxCell();
 			var textCellTemplate1 = new DataGridViewTextBoxCell();
 			var textCellTemplate2 = new DataGridViewTextBoxCell();
 			var textCellTemplate3 = new DataGridViewTextBoxCell();
 			textCellTemplate0.Style.BackColor = this.grdPlanning.RowHeadersDefaultCellStyle.BackColor;
+			textCellTemplate0.Style.ForeColor = this.grdPlanning.RowHeadersDefaultCellStyle.ForeColor;
 			textCellTemplate0.Style.Font = new Font( this.planningFont, FontStyle.Bold );
 			textCellTemplate1.Style.BackColor = this.grdPlanning.RowHeadersDefaultCellStyle.BackColor;
+			textCellTemplate1.Style.ForeColor = this.grdPlanning.RowHeadersDefaultCellStyle.ForeColor;
 			textCellTemplate1.Style.Font = new Font( this.planningFont, FontStyle.Bold );
 			textCellTemplate2.Style.BackColor = Color.Wheat;
+			textCellTemplate2.Style.ForeColor = Color.Black;
 			textCellTemplate3.Style.BackColor = Color.White;
 			textCellTemplate3.Style.ForeColor = Color.Navy;
-			var column0 = new DataGridViewTextBoxColumn();
-			var column1 = new DataGridViewTextBoxColumn();
-			var column2 = new DataGridViewTextBoxColumn();
-			var column3 = new DataGridViewTextBoxColumn();
-			column0.SortMode = DataGridViewColumnSortMode.NotSortable;
-			column1.SortMode = DataGridViewColumnSortMode.NotSortable;
-			column2.SortMode = DataGridViewColumnSortMode.NotSortable;
-			column3.SortMode = DataGridViewColumnSortMode.NotSortable;
-			column0.CellTemplate = textCellTemplate0;
-			column1.CellTemplate = textCellTemplate1;
-			column2.CellTemplate = textCellTemplate2;
-			column3.CellTemplate = textCellTemplate3;
-			column0.HeaderText = "#";
-			column0.Width = 25;
-			column0.ReadOnly = true;
-			column1.HeaderText = "{*}";
-			column1.Width = 25;
-			column1.ReadOnly = true;
-			column2.HeaderText = "Fecha";
-			column2.Width = 75;
-			column3.HeaderText = "Tarea";
-			column3.Width = 250;
+			var column0 = new DataGridViewTextBoxColumn {
+				HeaderText = "#",
+				Width = 25,
+				ReadOnly = true,
+				CellTemplate = textCellTemplate0,
+				SortMode = DataGridViewColumnSortMode.NotSortable
+			};
+			var column1 = new DataGridViewTextBoxColumn {
+				HeaderText = "{*}",
+				Width = 25,
+				ReadOnly = true,
+				CellTemplate = textCellTemplate1,
+				SortMode = DataGridViewColumnSortMode.NotSortable
+			};
+			var column2 = new DataGridViewTextBoxColumn {
+				HeaderText = "Fecha",
+				Width = 75,
+				CellTemplate = textCellTemplate2,
+				SortMode = DataGridViewColumnSortMode.NotSortable
+			};
+			var column3 = new DataGridViewTextBoxColumn {
+				HeaderText = "Tarea",
+				Width = 250,
+				CellTemplate = textCellTemplate3,
+				SortMode = DataGridViewColumnSortMode.NotSortable
+			};
 			
 			this.grdPlanning.Columns.AddRange( new DataGridViewColumn[] {
 				column0,
@@ -96,9 +112,8 @@ namespace Bareplan.Gui {
 				column3,
 			} );
 
-			this.grdPlanning.CellEndEdit += delegate(object obj, DataGridViewCellEventArgs args) {
-				this.OnCellEdited( args.RowIndex, args.ColumnIndex );
-			};
+			this.grdPlanning.CellEndEdit += (object dest, DataGridViewCellEventArgs args) => 
+				this.OnRowEdited( args.RowIndex );
 
 			this.grdPlanning.Dock = DockStyle.Fill;
 			this.grdPlanning.TabIndex = 3;
@@ -123,11 +138,9 @@ namespace Bareplan.Gui {
 			};
 
 			// Layout
-			this.pnlPlanning = new Panel() { Dock = DockStyle.Fill };
+			this.pnlPlanning = new Panel { Dock = DockStyle.Fill };
 			this.pnlPlanning.SuspendLayout();
-			this.pnlPlanningContainer = new Panel() { Dock = DockStyle.Fill };
-			this.pnlPlanningContainer.Controls.Add( this.tabbed );
-			this.pnlPlanning.Controls.Add( this.pnlPlanningContainer );
+			this.pnlPlanning.Controls.Add( this.grdPlanning );
 		}
 
 		private void BuildPropertiesContainer()
@@ -138,29 +151,29 @@ namespace Bareplan.Gui {
 			int charSize = (int) fontSize.Width + 5;
 
 			// Panel
-			this.pnlConfigContainer = new Panel();
+			this.pnlConfigContainer = new Panel {
+				Dock = DockStyle.Bottom,
+				BackColor = Color.FloralWhite,
+				ForeColor = Color.Black
+			};
 			this.pnlConfigContainer.SuspendLayout();
-			this.pnlConfigContainer.Dock = DockStyle.Bottom;
-			this.pnlConfigContainer.BackColor = Color.FloralWhite;
 
 			// Inner panel
-			var pnlInner = new Panel();
+			var pnlInner = new Panel { Dock = DockStyle.Fill };
 			pnlInner.SuspendLayout();
-			pnlInner.Dock = DockStyle.Fill;
-			var somePadding = new Padding();
-			somePadding.All = 10;
+			var somePadding = new Padding { All = 10 };
 			pnlInner.Padding = somePadding;
 
 			// Steps editing
-			var pnlSteps = new Panel();
+			var pnlSteps = new Panel { Dock = DockStyle.Left };
 			pnlSteps.SuspendLayout();
-			pnlSteps.Dock = DockStyle.Left;
-			var btBuilder = new Button() { Text = "...", Dock = DockStyle.Right };
-			this.lblSteps = new Label() { Text = "Pasos:", Dock = DockStyle.Left} ;
-			this.edSteps = new TextBox() { Dock = DockStyle.Fill };
+			var btBuilder = new Button { Text = "...", Dock = DockStyle.Right, FlatStyle = FlatStyle.Flat };
+			btBuilder.FlatAppearance.BorderSize = 0;
+			this.lblSteps = new Label { Text = "Pasos:", Dock = DockStyle.Left} ;
+			this.edSteps = new TextBox { Dock = DockStyle.Fill, ReadOnly = true };
 
 			// End when pressing enter
-			this.edSteps.KeyDown += delegate(object obj, KeyEventArgs args) {
+			this.edSteps.KeyDown += (object obj, KeyEventArgs args) => {
 				if ( args.KeyCode == Keys.Enter ) {
 					this.OnPropertiesPanelClosed();
 				}
@@ -168,60 +181,60 @@ namespace Bareplan.Gui {
 
 			// Opens a GUI helper
 			btBuilder.Click += (sender, e) => {
-				var dlg = new StepsBuilder( this );
+				var dlg = new StepsBuilder( this, this.edSteps.Text );
 				if ( dlg.ShowDialog() == DialogResult.OK ) {
 					this.edSteps.Text = dlg.Result;
 				}
 			};
 
-			btBuilder.MaximumSize = btBuilder.Size = new Size( charSize * btBuilder.Text.Length, this.edSteps.Height );
 			pnlSteps.Controls.Add( this.edSteps );
 			pnlSteps.Controls.Add( this.lblSteps );
 			pnlSteps.Controls.Add( btBuilder );
-			pnlSteps.ResumeLayout( false );
+			pnlSteps.ResumeLayout( true );
 
 			// Initial date
-			var pnlDate = new Panel();
+			var pnlDate = new Panel { Dock = DockStyle.Right };
 			pnlDate.SuspendLayout();
-			pnlDate.Dock = DockStyle.Right;
-			this.lblInitialDate = new Label();
-			this.lblInitialDate.Text = "Fecha inicial:";
-			this.lblInitialDate.Dock = DockStyle.Left;
-			this.edInitialDate = new DateTimePicker();
-			this.edInitialDate.Dock = DockStyle.Fill;
-			this.edInitialDate.Format = DateTimePickerFormat.Custom;
-			this.edInitialDate.CustomFormat = Core.Locale.CurrentLocale.DateTimeFormat.ShortDatePattern;
+			this.lblInitialDate = new Label { Text = "Fecha inicial:", Dock = DockStyle.Left };
+			this.edInitialDate = new DateTimePicker {
+				Dock = DockStyle.Fill,
+				Format = DateTimePickerFormat.Custom,
+				CustomFormat = Locale.CurrentLocale.DateTimeFormat.ShortDatePattern
+			};
 			pnlDate.Controls.Add( this.edInitialDate );
 			pnlDate.Controls.Add( this.lblInitialDate );
 			pnlDate.ResumeLayout( false );
 
 			// Button for hiding the panel
-			var btCloseConfigContainer = new Button();
-			btCloseConfigContainer.Text = "X";
-			btCloseConfigContainer.Dock = DockStyle.Right;
-			btCloseConfigContainer.Font = new Font( this.defaultFont, FontStyle.Bold );
-			btCloseConfigContainer.Width = charSize * 5;
-			btCloseConfigContainer.FlatStyle = FlatStyle.Flat;
+			var btCloseConfigContainer = new Button {
+				Text = "X",
+				Dock = DockStyle.Right,
+				Font = new Font( this.defaultFont, FontStyle.Bold ),
+				Width = charSize * 5,
+				FlatStyle = FlatStyle.Flat
+			};
 			btCloseConfigContainer.FlatAppearance.BorderSize = 0;
-			btCloseConfigContainer.Click += delegate(object obj, EventArgs args) {
+			btCloseConfigContainer.Click += (object obj, EventArgs args) => {
 				this.OnPropertiesPanelClosed();
 			};
 
 			// Adding controls
-			pnlInner.Controls.Add( pnlDate );
 			pnlInner.Controls.Add( pnlSteps );
+			pnlInner.Controls.Add( pnlDate );
 			pnlInner.ResumeLayout( true );
 			this.pnlConfigContainer.Controls.Add( pnlInner );
 			this.pnlConfigContainer.Controls.Add( btCloseConfigContainer );
 			this.pnlConfigContainer.ResumeLayout( true );
 
 			// Finishing
-			this.pnlConfigContainer.MinimumSize = 
-				new Size( this.Width, ( this.edSteps.Height * 2 ) + 5 );
-			this.pnlConfigContainer.MaximumSize = 
-				new Size( Int32.MaxValue, ( this.edSteps.Height * 2 ) + 5 );
-			this.pnlConfigContainer.Hide();
 			this.pnlPlanning.Controls.Add( this.pnlConfigContainer );
+			this.pnlConfigContainer.MaximumSize = new Size( int.MaxValue, (int) fontSize.Height * 2 );
+			btBuilder.Size = btBuilder.MaximumSize = new Size(
+					(int) fontSize.Width * btBuilder.Text.Length,
+					this.edSteps.Height
+			);
+			lblSteps.Size = new Size( (int) fontSize.Width * this.lblSteps.Text.Length, (int) fontSize.Height * 2 );
+			this.pnlConfigContainer.Hide();
 		}
 
 		private void BuildMainMenu()
@@ -320,66 +333,77 @@ namespace Bareplan.Gui {
 			int charSize = (int) fontSize.Width + 5;
 
 			// Panel for about info
-			this.pnlAbout = new Panel();
+			this.pnlAbout = new Panel() {
+				Dock = DockStyle.Bottom,
+				BackColor = Color.LightYellow,
+				ForeColor = Color.Black
+			};
 			this.pnlAbout.SuspendLayout();
-			this.pnlAbout.Dock = DockStyle.Bottom;
-			this.pnlAbout.BackColor = Color.LightYellow;
-			this.lblAbout = new Label();
-			this.lblAbout.Text = AppInfo.Name + " v" + AppInfo.Version + ", " + AppInfo.Author;
-			this.lblAbout.Dock = DockStyle.Left;
-			this.lblAbout.TextAlign = ContentAlignment.MiddleCenter;
-			this.lblAbout.AutoSize = true;
-			this.lblAbout.Font = new Font( this.defaultFont, FontStyle.Bold );
-			var btCloseAboutPanel = new Button();
-			btCloseAboutPanel.Text = "X";
-			btCloseAboutPanel.Font = new Font( this.defaultFont, FontStyle.Bold );
-			btCloseAboutPanel.Dock = DockStyle.Right;
-			btCloseAboutPanel.Width = charSize * 5;
-			btCloseAboutPanel.FlatStyle = FlatStyle.Flat;
+			this.lblAbout = new Label {
+				Text = AppInfo.Name + " v" + AppInfo.Version + ", " + AppInfo.Author,
+				Dock = DockStyle.Left,
+				TextAlign = ContentAlignment.MiddleCenter,
+				AutoSize = true,
+				Font = new Font( this.defaultFont, FontStyle.Bold )
+			};
+			var btCloseAboutPanel = new Button() {
+				Text = "X",
+				Dock = DockStyle.Right,
+				Width = charSize * 5,
+				FlatStyle = FlatStyle.Flat,
+				Font = new Font( this.defaultFont, FontStyle.Bold )
+			};
 			btCloseAboutPanel.FlatAppearance.BorderSize = 0;
 			btCloseAboutPanel.Click += (o, evt) => this.pnlAbout.Hide();
 			this.pnlAbout.Controls.Add( lblAbout );
 			this.pnlAbout.Controls.Add( btCloseAboutPanel );
 			this.pnlAbout.Hide();
-			this.pnlAbout.MinimumSize = new Size( this.Width, this.lblAbout.Height +5 );
-			this.pnlAbout.MaximumSize = new Size( Int32.MaxValue, this.lblAbout.Height +5 );
+			this.pnlAbout.MinimumSize = new Size( this.Width, this.lblAbout.Height + 5 );
+			this.pnlAbout.MaximumSize = new Size( Int32.MaxValue, this.lblAbout.Height + 5 );
 
 			this.pnlAbout.ResumeLayout( false );
 		}
 
 		private void BuildSettingsPanel()
 		{
-			this.pnlSettings = new TableLayoutPanel();
-			this.pnlSettings.BackColor = Color.White;
-			this.pnlSettings.Dock = DockStyle.Bottom;
-			this.pnlSettings.ColumnCount = 1;
-			this.pnlSettings.GrowStyle = TableLayoutPanelGrowStyle.AddRows;
+			this.pnlSettings = new TableLayoutPanel {
+				BackColor = Color.White,
+				ForeColor = Color.Black,
+				Dock = DockStyle.Bottom,
+				ColumnCount = 1,
+				GrowStyle = TableLayoutPanelGrowStyle.AddRows
+			};
 			this.pnlSettings.SuspendLayout();
 
 			// Button
-			var btClose = new Button();
-			btClose.BackColor = Color.White;
-			btClose.Text = "X";
-			btClose.Anchor = AnchorStyles.Right;
-			btClose.Font = new Font( btClose.Font, FontStyle.Bold );
-			btClose.FlatStyle = FlatStyle.Flat;
+			var btClose = new Button {
+				BackColor = Color.White,
+				Text = "X",
+				Anchor = AnchorStyles.Right,
+				Font = new Font( Font, FontStyle.Bold ),
+				FlatStyle = FlatStyle.Flat
+			};
 			btClose.FlatAppearance.BorderSize = 0;
 			btClose.Click += (sender, e) => this.ChangeSettings();
 			this.pnlSettings.Controls.Add( btClose );
 
 			// Locale
-			var pnlLocales = new Panel();
-			pnlLocales.Margin = new Padding( 5 );
-			pnlLocales.Dock = DockStyle.Top;
-			this.lblLocales = new Label();
-			this.lblLocales.Text = StringsL18n.Get( StringsL18n.StringId.LblLanguage );
-			this.lblLocales.Dock = DockStyle.Left;
+			var pnlLocales = new Panel {
+				Margin = new Padding( 5 ),
+				Dock = DockStyle.Top
+			};
+			this.lblLocales = new Label {
+				Text = StringsL18n.Get( StringsL18n.StringId.LblLanguage ),
+				Dock = DockStyle.Left
+			};
 
-			this.cbLocales = new ComboBox();
-			this.cbLocales.Dock = DockStyle.Fill;
-			this.cbLocales.DropDownStyle = ComboBoxStyle.DropDownList;
-			this.cbLocales.Text = Locale.CurrentLocale.ToString();
-
+			this.cbLocales = new ComboBox() {
+				ForeColor = Color.Black,
+				BackColor = Color.White,
+				Dock = DockStyle.Fill,
+				DropDownStyle = ComboBoxStyle.DropDownList,
+				Text = Locale.CurrentLocale.ToString()
+			};
 			CultureInfo[] locales = CultureInfo.GetCultures( CultureTypes.SpecificCultures );
 			Array.Sort( locales,
 				((CultureInfo x, CultureInfo y) => x.ToString().CompareTo( y.ToString() ) )
@@ -409,7 +433,7 @@ namespace Bareplan.Gui {
 
 				this.addRowIcon = new Bitmap(
 					System.Reflection.Assembly.GetEntryAssembly( ).
-						GetManifestResourceStream( "bareplan.Res.addRowIcon.png" ) );
+						GetManifestResourceStream( "bareplan.Res.addIcon.png" ) );
 
 				this.calendarViewIcon = new Bitmap(
 					System.Reflection.Assembly.GetEntryAssembly( ).
@@ -439,16 +463,12 @@ namespace Bareplan.Gui {
 					System.Reflection.Assembly.GetEntryAssembly( ).
 						GetManifestResourceStream( "bareplan.Res.saveIcon.png" ) );
 
-				this.saveAsIcon = new Bitmap(
-					System.Reflection.Assembly.GetEntryAssembly( ).
-						GetManifestResourceStream( "bareplan.Res.saveAsIcon.png" ) );
-
 				this.settingsIcon = new Bitmap(
 					System.Reflection.Assembly.GetEntryAssembly( ).
 						GetManifestResourceStream( "bareplan.Res.settingsIcon.png" ) );
-			} catch(Exception)
+			} catch(Exception e)
 			{
-				// ignored: icons could not be loaded
+				Debug.WriteLine( "ERROR loading icons: " + e.Message);
 			}
 
 			return;
@@ -459,32 +479,22 @@ namespace Bareplan.Gui {
 			this.tbBar = new ToolBar();
 
 			// Create image list
-			var imgList = new ImageList();
-			imgList.ImageSize = new Size( 24, 24 );
+			var imgList = new ImageList{ ImageSize = new Size( 24, 24 ) };
 			imgList.Images.AddRange( new Image[]{
 				this.newIcon, this.openIcon,
-				this.saveIcon, this.saveAsIcon,
+				this.saveIcon,
 				this.exportIcon, this.addRowIcon,
 				this.propertiesIcon, this.settingsIcon,
 			});
 
 			// Buttons
-			this.tbbNew = new ToolBarButton();
-			this.tbbNew.ImageIndex = 0;
-			this.tbbOpen = new ToolBarButton();
-			this.tbbOpen.ImageIndex = 1;
-			this.tbbSave = new ToolBarButton();
-			this.tbbSave.ImageIndex = 2;
-			this.tbbSaveAs = new ToolBarButton();
-			this.tbbSaveAs.ImageIndex = 3;
-			this.tbbExport = new ToolBarButton();
-			this.tbbExport.ImageIndex = 4;
-			this.tbbAddRow = new ToolBarButton();
-			this.tbbAddRow.ImageIndex = 5;
-			this.tbbProperties = new ToolBarButton();
-			this.tbbProperties.ImageIndex = 6;
-			this.tbbSettings = new ToolBarButton();
-			this.tbbSettings.ImageIndex = 7;
+			this.tbbNew = new ToolBarButton 		{ ImageIndex = 0 };
+			this.tbbOpen = new ToolBarButton 		{ ImageIndex = 1 };
+			this.tbbSave = new ToolBarButton 		{ ImageIndex = 2 };
+			this.tbbExport = new ToolBarButton 		{ ImageIndex = 3 };
+			this.tbbAddRow = new ToolBarButton 		{ ImageIndex = 4 };
+			this.tbbProperties = new ToolBarButton 	{ ImageIndex = 5 };
+			this.tbbSettings = new ToolBarButton 	{ ImageIndex = 6 };
 
 			// Triggers
 			this.tbBar.ButtonClick += (object sender, ToolBarButtonClickEventArgs e)
@@ -498,7 +508,7 @@ namespace Bareplan.Gui {
 			this.tbBar.Appearance = ToolBarAppearance.Flat;
 			this.tbBar.Buttons.AddRange( new ToolBarButton[] {
 				this.tbbNew, this.tbbOpen, this.tbbSave,
-				this.tbbSaveAs, this.tbbExport, this.tbbAddRow,
+				this.tbbExport, this.tbbAddRow,
 				this.tbbProperties, this.tbbSettings
 			});
 		}
@@ -546,7 +556,6 @@ namespace Bareplan.Gui {
 			this.Closed += ( obj, e) => this.OnQuit();
 
 			// End
-			this.pnlPlanningContainer.ResumeLayout( false );
 			this.pnlPlanning.ResumeLayout( false );
 			this.ResumeLayout( true );
 			this.ResizeWindow();
@@ -561,7 +570,7 @@ namespace Bareplan.Gui {
 		private void ResizeWindow()
 		{
 			// Get the new measures
-			int width = this.pnlPlanningContainer.ClientRectangle.Width;
+			int width = this.pnlPlanning.ClientRectangle.Width;
 			
 			// Resize the table of events
 			this.grdPlanning.Width = width;
@@ -584,7 +593,6 @@ namespace Bareplan.Gui {
 		private Bitmap newIcon;
 		private Bitmap openIcon;
 		private Bitmap propertiesIcon;
-		private Bitmap saveAsIcon;
 		private Bitmap saveIcon;
 		private Bitmap settingsIcon;
 
@@ -593,12 +601,10 @@ namespace Bareplan.Gui {
 		private ToolBarButton tbbNew;
 		private ToolBarButton tbbOpen;
 		private ToolBarButton tbbProperties;
-		private ToolBarButton tbbSaveAs;
 		private ToolBarButton tbbSave;
 		private ToolBarButton tbbSettings;
 
 		private DataGridView grdPlanning;
-		private Panel pnlPlanningContainer;
 		private Panel pnlConfigContainer;
 		private TableLayoutPanel pnlSettings;
 		private MainMenu mMain;

@@ -63,6 +63,7 @@ namespace Bareplan.Core {
 			// Close main node
 			writer.WriteEndElement();
 			writer.Close();
+			this.Document.NeedsSaving = false;
 			return;
 		}
 
@@ -137,6 +138,7 @@ namespace Bareplan.Core {
 			}
 
 			this.Document = doc;
+			this.Document.NeedsSaving = false;
 			return doc;
 		}
 	}

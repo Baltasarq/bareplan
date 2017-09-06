@@ -20,6 +20,7 @@ namespace Bareplan.Core {
 			this.InitialDate = DateTime.Now;
 			this.hasNext = false;
 			this.FileName = "";
+			this.NeedsSaving = true;
 		}
 
 		public void AddLast()
@@ -32,18 +33,21 @@ namespace Bareplan.Core {
 
 			this.dates.Add( date );
 			this.tasks.Add( TaskTag + this.CountDates.ToString() );
+			this.NeedsSaving = true;
 		}
 
 		public void Modify(int rowNumber, DateTime date, string task)
 		{
 			this.dates[ rowNumber ] = date;
 			this.tasks[ rowNumber ] = task;
+			this.NeedsSaving = true;
 		}
 
 		public void InsertRow(int i)
 		{
 			this.tasks.Insert( i, TaskTag + ( i + 1 ).ToString() );
 			this.dates.Insert( i, this.dates[ i ] );
+			this.NeedsSaving = true;
 		}
 
 		public void InsertTask(int i)
@@ -55,6 +59,7 @@ namespace Bareplan.Core {
 		{
 			this.tasks.Insert( i, task );
 			this.dates.Add( this.LastDate.AddDays( this.Steps.NextStep ) );
+			this.NeedsSaving = true;
 		}
 
 		public void InsertDate(int rowNumber)
@@ -64,6 +69,8 @@ namespace Bareplan.Core {
 			// Insert
 			this.dates.Insert( rowNumber, this.dates[ rowNumber ] );
 			this.tasks.Add( TaskTag + ( count + 1 ).ToString() );
+			
+			this.NeedsSaving = true;
 		}
 
 		public void Remove(int i)
@@ -73,7 +80,7 @@ namespace Bareplan.Core {
 				this.tasks.RemoveAt( i );
 			}
 
-			return;
+			this.NeedsSaving = true;
 		}
 
 		public void RemoveTask(int i)
@@ -83,7 +90,7 @@ namespace Bareplan.Core {
 				this.tasks.Add( TaskTag + this.CountDates.ToString() );
 			}
 
-			return;
+			this.NeedsSaving = true;
 		}
 
 		public void RemoveDate(int i)
@@ -93,7 +100,7 @@ namespace Bareplan.Core {
 				this.dates.Add( this.LastDate.AddDays( this.Steps.NextStep ) );
 			}
 
-			return;
+			this.NeedsSaving = true;
 		}
 
 		public KeyValuePair<DateTime, string> GotoFirst()
@@ -165,7 +172,7 @@ namespace Bareplan.Core {
 				currentStep = this.Steps.NextStep;
 			}
 
-			return;
+			this.NeedsSaving = true;
 		}
 
 		public ReadOnlyCollection<DateTime> Dates {
@@ -192,6 +199,7 @@ namespace Bareplan.Core {
 				if ( this.initialDate != value ) {
 					this.initialDate = value;
 					this.Recalculate();
+					this.NeedsSaving = true;
 				}
 			}
 		}
@@ -226,6 +234,14 @@ namespace Bareplan.Core {
 			}
 
 			return toret.ToArray();
+		}
+		
+		/// <summary>
+		/// Gets a value indicating whether this <see cref="T:Bareplan.Core.Document"/> needs saving.
+		/// </summary>
+		/// <value><c>true</c> if needs saving; otherwise, <c>false</c>.</value>
+		public bool NeedsSaving {
+			get; internal set;
 		}
 
 		private List<DateTime> dates;
