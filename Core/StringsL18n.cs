@@ -1,10 +1,10 @@
-using System;
-using System.Globalization;
-using System.Collections.ObjectModel;
+// Bareplan (c) 2015-17 MIT License <baltasarq@gmail.com>
 
 namespace Bareplan.Core {
-	public static class StringsL18n {
+	using System.Globalization;
+	using System.Collections.ObjectModel;
 
+	public static class StringsL18n {
 		public enum StringId {
 			MnFile,
 			MnEdit,

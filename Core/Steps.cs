@@ -1,9 +1,10 @@
-﻿using System;
-using System.Text;
-using System.Collections.ObjectModel;
-using System.Collections.Generic;
+﻿// Bareplan (c) 2015-17 MIT License <baltasarq@gmail.com>
 
 namespace Bareplan.Core {
+	using System.Text;
+	using System.Collections.ObjectModel;
+	using System.Collections.Generic;
+
 	/// <summary>
 	/// Represents a secquence of steps. Each step is a number of days.
 	/// For example, a valid secquence could be: 0,2

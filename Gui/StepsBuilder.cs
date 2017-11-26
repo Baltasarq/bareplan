@@ -1,10 +1,12 @@
-﻿using System;
-using System.Diagnostics;
-using System.Drawing;
-using System.Collections.Generic;
-using System.Windows.Forms;
+﻿// Bareplan (c) 2015-17 MIT License <baltasarq@gmail.com>
 
 namespace Bareplan.Gui {
+	using System;
+	using System.Diagnostics;
+	using System.Drawing;
+	using System.Collections.Generic;
+	using System.Windows.Forms;
+
 	public class StepsBuilder: Form {
 		public StepsBuilder(Form parent, string currentSteps)
 		{

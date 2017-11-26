@@ -1,15 +1,15 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+// Bareplan (c) 2015-17 MIT License <baltasarq@gmail.com>
 
 namespace Bareplan.Core {
+	using System;
+	using System.Collections.Generic;
+	using System.Collections.ObjectModel;
+
 	/// <summary>
 	/// Represents documents with dates and tasks.
 	/// The document is ordered by date, which has a corresponding task.
 	/// </summary>
 	public class Document {
-
 		public const string TaskTag = "thema";
 
 		public Document()

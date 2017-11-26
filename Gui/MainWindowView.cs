@@ -1,12 +1,14 @@
-using System;
-using System.Drawing;
-using System.Windows.Forms;
-using System.Globalization;
-using System.Diagnostics;
-
-using Bareplan.Core;
+// Bareplan (c) 2015-17 MIT License <baltasarq@gmail.com>
 
 namespace Bareplan.Gui {
+	using System;
+	using System.Drawing;
+	using System.Windows.Forms;
+	using System.Globalization;
+	using System.Diagnostics;
+	
+	using Bareplan.Core;
+	
 	public partial class MainWindow: Form {
 		public const int FontStep = 2;
 		public enum ColsIndex { Num, DoW, Date, Task };

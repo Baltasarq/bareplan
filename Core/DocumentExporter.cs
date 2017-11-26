@@ -1,7 +1,8 @@
-using System;
-using System.IO;
+// Bareplan (c) 2015-17 MIT License <baltasarq@gmail.com>
 
 namespace Bareplan.Core {
+	using System.IO;
+	
 	/// <summary>
 	/// Base class for all document exporters.
 	/// </summary>
@@ -12,7 +13,7 @@ namespace Bareplan.Core {
 		/// <param name='doc'>
 		/// The <see cref="Bareplan.Core.Document"/> to export.
 		/// </param>
-		public DocumentExporter(Document doc, string path)
+		protected DocumentExporter(Document doc, string path)
 		{
 			this.Document = doc;
 			this.Path = path;

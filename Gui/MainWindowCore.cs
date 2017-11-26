@@ -1,13 +1,15 @@
-﻿using System;
-using System.IO;
-using System.Xml;
-using System.Drawing;
-using System.Globalization;
-using System.Windows.Forms;
-
-using Bareplan.Core;
+﻿// Bareplan (c) 2015-17 MIT License <baltasarq@gmail.com>
 
 namespace Bareplan.Gui {
+	using System;
+	using System.IO;
+	using System.Xml;
+	using System.Drawing;
+	using System.Globalization;
+	using System.Windows.Forms;
+	
+	using Bareplan.Core;
+
 	public partial class MainWindow {
 		private void OnShow() {
 			filePath = Environment.GetFolderPath( Environment.SpecialFolder.MyDocuments );

@@ -1,10 +1,12 @@
-using System;
-using System.Xml;
-using System.Text;
-using System.Collections.Generic;
-using System.Globalization;
-
+// Bareplan (c) 2015-17 MIT License <baltasarq@gmail.com>
+	
 namespace Bareplan.Core {
+	using System;
+	using System.Xml;
+	using System.Text;
+	using System.Collections.Generic;
+	using System.Globalization;
+
 	public class XmlDocumentPersistence: DocumentPersistence {
 		public const string DefaultExt = "bar";
 		public const string TasksTag = "tasks";
@@ -14,7 +16,7 @@ namespace Bareplan.Core {
 		public const string DateTag = "date";
 
 		/// <summary>
-		/// Build a new document saver/loader by XML <see cref="Bareplan.XmlDocumentPersistence"/> class.
+		/// Build a new document saver/loader by XML <see cref="XmlDocumentPersistence"/> class.
 		/// </summary>
 		/// <param name='doc'>
 		/// The document, that can be null if its going to be loaded.
@@ -30,9 +32,10 @@ namespace Bareplan.Core {
 		public override void Save(string f)
 		{
 			// Document encoding
-			var settings = new XmlWriterSettings();
-			settings.Encoding = Encoding.UTF8;
-			settings.Indent = true;
+			var settings = new XmlWriterSettings {
+				Encoding = Encoding.UTF8,
+				Indent = true
+			};
 
 			// Start writing
 			var writer = XmlWriter.Create( f, settings );
@@ -85,9 +88,10 @@ namespace Bareplan.Core {
 			if ( mainNode.Name.ToLower() == TasksTag ) {
 				foreach(XmlNode node in mainNode.ChildNodes) {
 					var element = ( node as XmlElement );
+					string elementName = element.Name.ToLower();
 
 					if ( element != null ) {
-						if ( element.Name.ToLower() == TaskTag ) {
+						if ( elementName == TaskTag ) {
 							string task;
 							var date = element.Attributes.GetNamedItem( DateTag );
 
@@ -104,19 +108,17 @@ namespace Bareplan.Core {
 							);
 						}
 						else
-						if ( element.Name.ToLower() == StepsTag ) {
+						if ( elementName == StepsTag ) {
 							doc.Steps.SetSteps( element.InnerText );
 						}
 						else
-						if ( element.Name.ToLower() == InitialDateTag ) {
-							DateTime result;
-
+						if ( elementName == InitialDateTag ) {
 							initialDateSet = DateTime.TryParseExact(
 														element.InnerText,
 														"yyyy-MM-dd",
 														CultureInfo.InvariantCulture,
 														DateTimeStyles.None,
-														out result );
+														out DateTime result );
 							if ( initialDateSet ) {
 								doc.InitialDate = result;
 							}

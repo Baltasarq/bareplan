@@ -1,13 +1,12 @@
-using System;
-using System.Windows.Forms;
+// Bareplan (c) 2015-17 MIT License <baltasarq@gmail.com>
 
-using Bareplan.Gui;
-using Bareplan.Core;
+namespace Bareplan.Gui {
+	using System;
+	using System.Windows.Forms;
+	
+	using Bareplan.Core;
 
-namespace Bareplan.Gui
-{
-	public class BareplanApp
-	{
+	public class BareplanApp {
 		[STAThread]
 		public static void Main()
 		{
@@ -28,4 +27,3 @@ namespace Bareplan.Gui
 		}
 	}
 }
-

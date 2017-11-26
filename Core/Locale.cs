@@ -1,8 +1,10 @@
-using System;
-using System.Globalization;
-using System.Threading;
+// Bareplan (c) 2015-17 MIT License <baltasarq@gmail.com>
 
 namespace Bareplan.Core {
+	using System;
+	using System.Globalization;
+	using System.Threading;
+
 	public static class Locale {
 		public const string EsLocale = "es-ES";
 		public const string UsLocale = "en-US";

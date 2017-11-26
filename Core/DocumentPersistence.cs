@@ -1,13 +1,12 @@
-using System;
+// Bareplan (c) 2015-17 MIT License <baltasarq@gmail.com>
 
 namespace Bareplan.Core {
 	public abstract class DocumentPersistence {
-
 		/// <summary>
 		/// Creates a new instance, prepared to load and save documents.
 		/// </summary>
 		/// <param name="doc">The document to save. Pass null if you are going to load a new one.</param>
-		public DocumentPersistence(Document doc)
+		protected DocumentPersistence(Document doc)
 		{
 			this.Document = doc;
 		}
