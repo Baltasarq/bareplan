@@ -1,134 +1,107 @@
 // Bareplan (c) 2015-17 MIT License <baltasarq@gmail.com>
 
 namespace Bareplan.Core {
-	using System;
+	using System.Web;
 	using System.Text;
-	using System.Globalization;
-	using System.Collections.Generic;
 
 	/// <summary>
-	/// Exports a class to HTML format.
+	/// Exports the document to HTML format.
 	/// </summary>
 	public class HtmlExporter: DocumentExporter {
 		public const string DefaultExt = "html";
 
-		public HtmlExporter(Document doc, string path): base( doc, path )
+		/// <summary>
+		/// Initializes a new <see cref="T:Bareplan.Core.HtmlExporter"/>.
+		/// </summary>
+		/// <param name="info">An <see cref="T: ExportInfo"/>.</param>
+		public HtmlExporter(ExportInfo info)
+			: base( info )
 		{
 		}
 		
-		private void WriteHtmlHeader(StringBuilder htmlDoc)
+		protected override void WriteHeader(StringBuilder txt)
 		{
-			htmlDoc.AppendLine( "<html><header>" );
-			htmlDoc.AppendLine( "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">" );
-			htmlDoc.AppendLine( "<title>"
-			               + System.IO.Path.GetFileNameWithoutExtension( this.Path )
+			txt.AppendLine( "<html><header>" );
+			txt.AppendLine( "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">" );
+			txt.AppendLine( "<title>"
+			               + System.IO.Path.GetFileNameWithoutExtension( this.Info.FileName )
 			               + "</title>"
 			               );
 
-			htmlDoc.AppendLine( "</header>\n<body>\n" );
+			txt.AppendLine( "</header>\n<body>\n" );
 		}
 		
-		private void WriteHtmlFooter(StringBuilder htmlDoc)
+		protected override void WriteFooter(StringBuilder txt)
 		{
-			htmlDoc.AppendLine( "\n<!-- " + AppInfo.AppHeader + " -->\n</body>\n</html>\n" );
+			txt.AppendLine( "\n<!-- " + AppInfo.AppHeader + " -->" );
+			txt.AppendLine( "</body>\n</html>" );
 		}
 		
-		private void WriteTableHeaders(StringBuilder toret)
+		protected override void WriteTableHeader(StringBuilder txt)
 		{
-			toret.AppendLine( "<table border='0'>\n" );
-			toret.AppendLine( "<tr>" );
-			toret.AppendLine( "<td style=\"color: white; background-color: black;\"><b>Sesi&oacute;n</b></td>" );
-			toret.AppendLine( "<td style=\"color: white; background-color: black;\"><b>Semana</b></td>" );
-			toret.AppendLine( "<td style=\"color: white; background-color: black;\"><b>D&iacute;a</b></td>" );
-			toret.AppendLine( "<td style=\"color: white; background-color: black;\"><b>Fecha</b></td>" );
-			toret.AppendLine( "<td style=\"color: white; background-color: black;\"><b>Tarea</b></td>" );
-			toret.AppendLine( "</tr>\n" );
-		}
-		
-		private static int GetWeekNumberFor(DateTime date)
-		{
-			DateTimeFormatInfo dfi = DateTimeFormatInfo.CurrentInfo;
-			Calendar cal = dfi.Calendar;
-	
-			return cal.GetWeekOfYear( date, dfi.CalendarWeekRule, dfi.FirstDayOfWeek );
-		}
-
-		public override void Export()
-		{
-			DateTimeFormatInfo dtfo = CultureInfo.CurrentCulture.DateTimeFormat;
-			StringBuilder toret = new StringBuilder();
-
-			this.WriteHtmlHeader( toret );
-			this.WriteTableHeaders( toret );
-
-			// Write each row
-			KeyValuePair<DateTime, string> pair = this.Document.GotoFirst();
-			int weekCount = 1;
-			int session = 1;
-			bool showWeek = true;
-			int weekNumber = GetWeekNumberFor( pair.Key );
-			while( !this.Document.IsEnd ) {
-				toret.AppendLine( "<tr>" );
-
-				// Session
-				toret.AppendLine( "<td style=\"color: black; background-color: rgb(204,204,204);\"><b>"
-				                 + Convert.ToString( session )
-				                 + "</b></td>"
-				);
+			txt.AppendLine( "<table border='0'>\n" );
+			txt.AppendLine( "<tr style=\"color: white; background-color: black;\">" );
+			
+			for(int i = 0; i < this.Info.ColumnNumber; ++i ) {
+				if ( !this.Info.VisibleColumn[ i ] ) {
+					continue;
+				}
 				
-				// Week count
-				if ( showWeek ) {
-					toret.AppendLine( "<td style=\"color: black; background-color: rgb(204,204,204); text-align: center\">"
-				                 + "<b>" + Convert.ToString( weekCount )
-				                 + "</b></td>" );
-				                 
-					showWeek = false;
-				} else {
-					toret.AppendLine( "<td style=\"background-color: white;\"></td>" );
-				}
-
-				// Day of week
-				toret.Append( "<td" );
-				if ( ( session % 2 ) == 0 ) {
-					toret.Append( " style=\"color: black; background-color: rgb(204,204,204);\"" );
-				}
-
-				toret.AppendLine( ">" + dtfo.GetAbbreviatedDayName( pair.Key.DayOfWeek ) + "</td>" );
-
-				// Date
-				toret.Append( "<td" );
-				if ( ( session % 2 ) == 0 ) {
-					toret.Append( " style=\"color: black; background-color: rgb(204,204,204);\"" );
-				}
-
-				toret.AppendLine( ">" + pair.Key.ToShortDateString() + "</td>" );
-
-				// Task
-				toret.Append( "<td" );
-				if ( ( session % 2 ) == 0 ) {
-					toret.Append( " style=\"color: black; background-color: rgb(204,204,204);\"" );
-				}
-
-				toret.AppendLine( ">" + pair.Value + "</td>" );
-
-				// Next task/date pair
-				toret.AppendLine();
-				pair = this.Document.Next();
-				++session;
-				
-				int newWeekNumber = GetWeekNumberFor( pair.Key );
-				if ( newWeekNumber != weekNumber ) {
-					++weekCount;
-					weekNumber = newWeekNumber;
-					showWeek = true;
-				}
+				txt.AppendLine( "<td><b>"
+									+ HttpUtility.HtmlEncode( this.Info.GetColumnHeaders[ i ]() )
+									+ "</b></td>" );
 			}
-
-			// End
-			toret.AppendLine( "\n</table>\n" );
-			this.WriteHtmlFooter( toret );
-			this.Contents = toret.ToString();
+			
+			txt.AppendLine( "</tr>\n" );
 		}
+		
+		protected override void WriteTableFooter(StringBuilder txt)
+		{
+			txt.AppendLine( "\n</table>");
+		}
+		
+		protected override void WriteRow(StringBuilder txt, RowInfo rowInfo)
+		{
+			// Set row style
+			if ( rowInfo.Session % 2 != 0 ) {
+				txt.AppendLine( "<tr style=\"color: black; background-color: rgb(204,204,204);\">" );
+			} else {
+				txt.AppendLine( "<tr>" );
+			}
+			
+			// Row columns
+			for(int i = 0;  i < this.Info.ColumnNumber; ++i ) {				
+				if ( !this.Info.VisibleColumn[ i ] ) {
+					continue;
+				}
+				
+				var column = (ExportInfo.Column) i;				
+				string columnValue = HttpUtility.HtmlEncode( this.GetColumn( column, rowInfo ) );
+				string style = "";
+				
+				if ( !rowInfo.WeekNumberChanged
+				  && column == ExportInfo.Column.Week )
+				{
+					txt.AppendLine( "<td style=\"background-color: white;\"></td>" );
+					continue;
+				}
+				
+				if ( column == ExportInfo.Column.Session
+				  || column == ExportInfo.Column.Day
+				  || column == ExportInfo.Column.Week )
+				{
+					columnValue = "<b>" + columnValue + "</b>";
+					style = "text-align: center";
+				}
+				
+				txt.Append( "<td"
+					+ ( !string.IsNullOrEmpty( style ) ? " style=\"" + style + '"' : "" )
+					+ ">");
+				txt.Append( columnValue );
+				txt.AppendLine( "</td>" );
+			}
+			
+			txt.AppendLine( "</tr>\n");
+		}		
 	}
 }
-

@@ -10,8 +10,26 @@ namespace Bareplan.Gui {
 	
 	using Bareplan.Core;
 
+	/// <summary>
+	/// The main window in the application, a <see cref="T:System.Windows.Forms.Form"/>.
+	/// </summary>
 	public partial class MainWindow {
-		private void OnShow() {
+		/// <summary>
+		/// Initializes a new <see cref="T:Bareplan.Gui.MainWindow"/> class.
+		/// </summary>
+		public MainWindow()
+		{
+			this.cfgFile = this.filePath = "";
+			this.doc = null;
+		
+			this.Shown += (sender, e) => this.OnShow();
+			this.Build();
+			this.DeactivateGui();
+			this.OnIncFont();
+		}
+		
+		private void OnShow()
+		{
 			filePath = Environment.GetFolderPath( Environment.SpecialFolder.MyDocuments );
 			this.ReadConfiguration();
 		}
@@ -49,50 +67,53 @@ namespace Bareplan.Gui {
 
 		private void ChangeUILanguage(CultureInfo locale)
 		{
-			StringsL18n.SetLanguage( locale );
+			L10n.SetLanguage( locale );
+			
+			// Context menu
+			this.BuildContextMenu();
 
 			// Menus
-			this.mFile.Text = StringsL18n.Get( StringsL18n.StringId.MnFile );
-			this.mView.Text = StringsL18n.Get( StringsL18n.StringId.MnView );
-			this.mEdit.Text = StringsL18n.Get( StringsL18n.StringId.MnEdit );
-			this.mHelp.Text = StringsL18n.Get( StringsL18n.StringId.MnHelp );
+			this.mFile.Text = L10n.Get( L10n.Id.MnFile );
+			this.mView.Text = L10n.Get( L10n.Id.MnView );
+			this.mEdit.Text = L10n.Get( L10n.Id.MnEdit );
+			this.mHelp.Text = L10n.Get( L10n.Id.MnHelp );
 
-			this.opNew.Text = StringsL18n.Get( StringsL18n.StringId.OpNew );
-			this.opOpen.Text = StringsL18n.Get( StringsL18n.StringId.OpOpen );
-			this.opSave.Text = StringsL18n.Get( StringsL18n.StringId.OpSave );
-			this.opSaveAs.Text = StringsL18n.Get( StringsL18n.StringId.OpSaveAs );
-			this.opClose.Text = StringsL18n.Get( StringsL18n.StringId.OpClose );
-			this.opExport.Text = StringsL18n.Get( StringsL18n.StringId.OpExport );
-			this.opQuit.Text = StringsL18n.Get( StringsL18n.StringId.OpQuit );
+			this.opNew.Text = L10n.Get( L10n.Id.OpNew );
+			this.opOpen.Text = L10n.Get( L10n.Id.OpOpen );
+			this.opSave.Text = L10n.Get( L10n.Id.OpSave );
+			this.opSaveAs.Text = L10n.Get( L10n.Id.OpSaveAs );
+			this.opClose.Text = L10n.Get( L10n.Id.OpClose );
+			this.opExport.Text = L10n.Get( L10n.Id.OpExport );
+			this.opQuit.Text = L10n.Get( L10n.Id.OpQuit );
 
-			this.opIncFont.Text = StringsL18n.Get( StringsL18n.StringId.OpIncFont );
-			this.opDecFont.Text = StringsL18n.Get( StringsL18n.StringId.OpDecFont );
+			this.opIncFont.Text = L10n.Get( L10n.Id.OpIncFont );
+			this.opDecFont.Text = L10n.Get( L10n.Id.OpDecFont );
 
-			this.opAdd.Text = StringsL18n.Get( StringsL18n.StringId.OpAdd );
-			this.opInsert.Text = StringsL18n.Get( StringsL18n.StringId.OpInsert );
-			this.opInsertDate.Text = StringsL18n.Get( StringsL18n.StringId.OpInsertDate );
-			this.opInsertTask.Text = StringsL18n.Get( StringsL18n.StringId.OpInsertTask );
-			this.opRemove.Text = StringsL18n.Get( StringsL18n.StringId.OpRemove );
-			this.opRemoveDate.Text = StringsL18n.Get( StringsL18n.StringId.OpRemoveDate );
-			this.opRemoveTask.Text = StringsL18n.Get( StringsL18n.StringId.OpRemoveTask );
-			this.opProperties.Text = StringsL18n.Get( StringsL18n.StringId.OpProperties );
-			this.opSettings.Text = StringsL18n.Get( StringsL18n.StringId.OpSettings );
+			this.opAdd.Text = L10n.Get( L10n.Id.OpAdd );
+			this.opInsert.Text = L10n.Get( L10n.Id.OpInsert );
+			this.opInsertDate.Text = L10n.Get( L10n.Id.OpInsertDate );
+			this.opInsertTask.Text = L10n.Get( L10n.Id.OpInsertTask );
+			this.opRemove.Text = L10n.Get( L10n.Id.OpRemove );
+			this.opRemoveDate.Text = L10n.Get( L10n.Id.OpRemoveDate );
+			this.opRemoveTask.Text = L10n.Get( L10n.Id.OpRemoveTask );
+			this.opProperties.Text = L10n.Get( L10n.Id.OpProperties );
+			this.opSettings.Text = L10n.Get( L10n.Id.OpSettings );
 
-			this.opAbout.Text = StringsL18n.Get( StringsL18n.StringId.OpAbout );
+			this.opAbout.Text = L10n.Get( L10n.Id.OpAbout );
 
 			// Planning table headers
 			this.grdPlanning.Columns[ (int) ColsIndex.Num ].HeaderText =
-				StringsL18n.Get( StringsL18n.StringId.HdNum );
+				L10n.Get( L10n.Id.HdNum );
 			this.grdPlanning.Columns[(int) ColsIndex.DoW ].HeaderText =
-				StringsL18n.Get( StringsL18n.StringId.HdDay );
+				L10n.Get( L10n.Id.HdDay );
 			this.grdPlanning.Columns[ (int) ColsIndex.Date ].HeaderText =
-				StringsL18n.Get( StringsL18n.StringId.HdDate );
+				L10n.Get( L10n.Id.HdDate );
 			this.grdPlanning.Columns[ (int) ColsIndex.Task ].HeaderText =
-				StringsL18n.Get( StringsL18n.StringId.HdTask );
+				L10n.Get( L10n.Id.HdTask );
 
 			// Properties
-			this.lblInitialDate.Text = StringsL18n.Get( StringsL18n.StringId.LblInitialDate );
-			this.lblSteps.Text = StringsL18n.Get( StringsL18n.StringId.LblSteps );
+			this.lblInitialDate.Text = L10n.Get( L10n.Id.LblInitialDate );
+			this.lblSteps.Text = L10n.Get( L10n.Id.LblSteps );
 			this.edInitialDate.CustomFormat = Core.Locale.CurrentLocale.DateTimeFormat.ShortDatePattern;
 
 			this.SetStatus();
@@ -153,7 +174,7 @@ namespace Bareplan.Gui {
 		/// </summary>
 		private void SetStatus()
 		{
-			this.SetStatus( StringsL18n.Get( StringsL18n.StringId.StReady ) );
+			this.SetStatus( L10n.Get( L10n.Id.StReady ) );
 		}
 
 		/// <summary>
@@ -172,7 +193,7 @@ namespace Bareplan.Gui {
 		{
 			MessageBox.Show(
 				this,
-				StringsL18n.Get( StringsL18n.StringId.ErNoDocument ),
+				L10n.Get( L10n.Id.ErNoDocument ),
 				AppInfo.Name,
 				MessageBoxButtons.OK,
 				MessageBoxIcon.Error
@@ -309,7 +330,7 @@ namespace Bareplan.Gui {
 				}
 
 				// Now do it
-				this.SetStatus( StringsL18n.Get( StringsL18n.StringId.StInserting )
+				this.SetStatus( L10n.Get( L10n.Id.StInserting )
 					+ ": " + this.doc.Dates[ rowNumber ].ToShortDateString() );
 				this.doc.InsertTask( rowNumber );
 				this.UpdatePlanning( rowNumber );
@@ -335,7 +356,7 @@ namespace Bareplan.Gui {
 				}
 
 				// Now do it
-				this.SetStatus( StringsL18n.Get( StringsL18n.StringId.StInserting )
+				this.SetStatus( L10n.Get( L10n.Id.StInserting )
 					+ ": " + this.doc.Dates[ rowNumber ].ToShortDateString() );
 
 				this.doc.InsertRow( rowNumber );
@@ -362,7 +383,7 @@ namespace Bareplan.Gui {
 				}
 
 				// Now do it
-				this.SetStatus( StringsL18n.Get( StringsL18n.StringId.StInserting )
+				this.SetStatus( L10n.Get( L10n.Id.StInserting )
 					+ ": " + this.doc.Dates[ rowNumber ].ToShortDateString() );
 
 				this.doc.InsertDate( rowNumber );
@@ -398,25 +419,28 @@ namespace Bareplan.Gui {
 		private void OnRemove()
 		{
 			if ( this.doc != null ) {
+				var row = this.grdPlanning.CurrentRow;				
 				int rowNumber = 0;
-				var row = this.grdPlanning.CurrentRow;
 				string strDate = this.doc.InitialDate.ToShortDateString();
 				string strTask = Document.TaskTag;
 
-				this.grdPlanning.EndEdit();
-
+				this.grdPlanning.EndEdit();	
+				
 				if ( row != null ) {
 					rowNumber = row.Index;
+				}
+				
+				if ( this.grdPlanning.Rows.Count > 0 ) {
 					strDate = this.grdPlanning.Rows[ rowNumber ].Cells[ (int) ColsIndex.Date ].ToString();
 					strTask = this.grdPlanning.Rows[ rowNumber ].Cells[ (int) ColsIndex.Task ].ToString();
+					
+					this.SetStatus( L10n.Get( L10n.Id.StRemoving )
+									+ ": " + strDate + "/" + strTask );
+					this.doc.Remove( rowNumber );
+					this.UpdatePlanning( rowNumber );
+					this.ChangeToListTab();
+					this.SetStatus();
 				}
-
-				this.SetStatus( StringsL18n.Get( StringsL18n.StringId.StRemoving )
-					+ ": " + strDate + "/" + strTask );
-				this.doc.Remove( rowNumber );
-				this.UpdatePlanning( rowNumber );
-				this.ChangeToListTab();
-				this.SetStatus();
 			} else {
 				this.ShowNoDocumentError();
 			}
@@ -438,12 +462,14 @@ namespace Bareplan.Gui {
 					strDate = this.grdPlanning.Rows[ rowNumber ].Cells[ (int) ColsIndex.Date ].ToString();
 				}
 
-				this.SetStatus(  StringsL18n.Get( StringsL18n.StringId.StRemoving ) 
-					+ ": " + strDate );
-				this.doc.RemoveTask( rowNumber );
-				this.UpdatePlanning( rowNumber );
-				this.ChangeToListTab();
-				this.SetStatus();
+				if ( this.grdPlanning.Rows.Count > 0 ) {
+					this.SetStatus(  L10n.Get( L10n.Id.StRemoving ) 
+						+ ": " + strDate );
+					this.doc.RemoveTask( rowNumber );
+					this.UpdatePlanning( rowNumber );
+					this.ChangeToListTab();
+					this.SetStatus();
+				}
 			} else {
 				this.ShowNoDocumentError();
 			}
@@ -465,12 +491,14 @@ namespace Bareplan.Gui {
 					strDate = this.grdPlanning.Rows[ rowNumber ].Cells[ (int) ColsIndex.Date ].ToString();
 				}
 
-				this.SetStatus( StringsL18n.Get( StringsL18n.StringId.StRemoving )
-					+ ": " + strDate );
-				this.doc.RemoveDate( rowNumber );
-				this.UpdatePlanning( rowNumber );
-				this.ChangeToListTab();
-				this.SetStatus();
+				if ( grdPlanning.Rows.Count > 0 ) {
+					this.SetStatus( L10n.Get( L10n.Id.StRemoving )
+						+ ": " + strDate );
+					this.doc.RemoveDate( rowNumber );
+					this.UpdatePlanning( rowNumber );
+					this.ChangeToListTab();
+					this.SetStatus();
+				}
 			} else {
 				this.ShowNoDocumentError();
 			}
@@ -485,7 +513,7 @@ namespace Bareplan.Gui {
 		{
 			if ( this.doc != null ) {
 				int rowNumber = this.doc.CountDates;
-				this.SetStatus( StringsL18n.Get( StringsL18n.StringId.StInserting )
+				this.SetStatus( L10n.Get( L10n.Id.StInserting )
 					+ ": " + ( rowNumber + 1 ).ToString() );
 
 				// Prepare the document
@@ -521,9 +549,13 @@ namespace Bareplan.Gui {
 				}
 
 				// Remove padding rows
-				int numExtraRows = this.grdPlanning.Rows.Count - this.doc.CountDates;
-				for(; numExtraRows > 0 ; --numExtraRows) {
-					this.grdPlanning.Rows.RemoveAt( this.doc.CountDates );
+				try {
+					int numExtraRows = this.grdPlanning.Rows.Count - this.doc.CountDates;
+					for(; numExtraRows > 0 ; --numExtraRows) {					
+						this.grdPlanning.Rows.RemoveAt( this.grdPlanning.Rows.Count - 1 );
+					}
+				} catch(ArgumentException exc) {
+					System.Diagnostics.Debug.WriteLine( "Removing: " + numRow + ": " + exc.Message );
 				}
 			}
 
@@ -535,9 +567,9 @@ namespace Bareplan.Gui {
 			DateTimeFormatInfo dtfo = Locale.CurrentLocale.DateTimeFormat;
 
 			if ( rowIndex < 0
-				|| rowIndex > this.grdPlanning.Rows.Count )
+			  || rowIndex > this.grdPlanning.Rows.Count )
 			{
-				throw new ArgumentException( StringsL18n.Get( StringsL18n.StringId.ErOutOfRange )
+				throw new ArgumentException( L10n.Get( L10n.Id.ErOutOfRange )
 					+ ": " + rowIndex );
 			}
 
@@ -596,21 +628,14 @@ namespace Bareplan.Gui {
 		/// </summary>
 		private void OnExport()
 		{
-			var dlgSaveFile = new SaveFileDialog( );
-
-			if ( this.doc != null ) {
-				dlgSaveFile.Title = AppInfo.Name;
-				dlgSaveFile.DefaultExt = HtmlExporter.DefaultExt;
-				dlgSaveFile.CheckPathExists = true;
-				dlgSaveFile.CheckFileExists = false;
-				dlgSaveFile.Filter = AppInfo.Name
-					+ " (*." + HtmlExporter.DefaultExt + ")"
-					+ "|*." + HtmlExporter.DefaultExt;
-				dlgSaveFile.InitialDirectory = filePath;
-
-				if ( dlgSaveFile.ShowDialog() == DialogResult.OK ) {
-					var exporter = new HtmlExporter( this.doc, dlgSaveFile.FileName );
-					exporter.Save();
+			if ( this.doc != null ) {		
+				var dlgExport = new ExportDlg( this.Icon, this.doc, filePath );
+			
+				DialogResult result = dlgExport.ShowDialog( this );
+				filePath = dlgExport.Path;
+				
+				if ( result == DialogResult.OK ) {
+					DocumentExporter.Create( dlgExport.ExportInfo ).Save();
 				}
 			} else {
 				this.ShowNoDocumentError();
@@ -682,7 +707,7 @@ namespace Bareplan.Gui {
 			{
 				MessageBox.Show(
 					this,
-					StringsL18n.Get( StringsL18n.StringId.ErManagingXML )
+					L10n.Get( L10n.Id.ErManagingXML )
 					+ ": " + exc.Message,
 					AppInfo.Name,
 					MessageBoxButtons.OK,
@@ -693,7 +718,7 @@ namespace Bareplan.Gui {
 			{
 				MessageBox.Show(
 					this,
-					StringsL18n.Get( StringsL18n.StringId.ErAccessingFile )
+					L10n.Get( L10n.Id.ErAccessingFile )
 					+ ": " + exc.Message,
 					AppInfo.Name,
 					MessageBoxButtons.OK,
@@ -733,7 +758,7 @@ namespace Bareplan.Gui {
 			{
 				MessageBox.Show(
 					this,
-					StringsL18n.Get( StringsL18n.StringId.ErManagingXML )
+					L10n.Get( L10n.Id.ErManagingXML )
 					+ ": " + exc.Message,
 					AppInfo.Name,
 					MessageBoxButtons.OK,
@@ -744,7 +769,7 @@ namespace Bareplan.Gui {
 			{
 				MessageBox.Show(
 					this,
-					StringsL18n.Get( StringsL18n.StringId.ErAccessingFile )
+					L10n.Get( L10n.Id.ErAccessingFile )
 					+ ": " + exc.Message,
 					AppInfo.Name,
 					MessageBoxButtons.OK,
@@ -893,7 +918,7 @@ namespace Bareplan.Gui {
 				MessageBox.Show(
 					this,
 					string.Format( "{0}:\n{1}",
-						StringsL18n.Get( StringsL18n.StringId.StReadingConfig ),
+						L10n.Get( L10n.Id.StReadingConfig ),
 						exc.Message ),
 					AppInfo.Name,
 					MessageBoxButtons.OK,
@@ -921,7 +946,7 @@ namespace Bareplan.Gui {
 				MessageBox.Show(
 					this,
 					string.Format( "{0}:\n{1}",
-						StringsL18n.Get( StringsL18n.StringId.StWritingConfig ),
+						L10n.Get( L10n.Id.StWritingConfig ),
 						exc.Message ),
 					AppInfo.Name,
 					MessageBoxButtons.OK,
@@ -930,24 +955,34 @@ namespace Bareplan.Gui {
 			}
 		}
 
+		/// <summary>
+		/// Returns the path to the config file in the user profile's directory.
+		/// </summary>
+		/// <value>The complete path.</value>
 		public string CfgFile
 		{
 			get {
 				if ( this.cfgFile.Trim().Length == 0 ) {
-					this.cfgFile = (Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX)
-						? Environment.GetEnvironmentVariable( "HOME" )
-						: Environment.ExpandEnvironmentVariables( "%HOMEDRIVE%%HOMEPATH%" );
-					this.cfgFile = System.IO.Path.Combine( cfgFile, CfgFileName );
+					var cfgPath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+					this.cfgFile = Path.Combine( cfgPath, CfgFileName );
 				}
 
 				return cfgFile;
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the height of the window to be stored in the cfg file.
+		/// </summary>
+		/// <value>The height of the main window.</value>
 		public int CfgHeight {
 			get; set;
 		}
 
+		/// <summary>
+		/// Gets or sets the width of the window to be stored in the cfg file.
+		/// </summary>
+		/// <value>The width of the main window.</value>
 		public int CfgWidth {
 			get; set;
 		}

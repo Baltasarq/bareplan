@@ -4,14 +4,20 @@ namespace Bareplan.Core {
 	using System;
 	using System.Collections.Generic;
 	using System.Collections.ObjectModel;
+	
+	using Pair = System.Collections.Generic.KeyValuePair<System.DateTime, string>;
 
 	/// <summary>
 	/// Represents documents with dates and tasks.
 	/// The document is ordered by date, which has a corresponding task.
 	/// </summary>
 	public class Document {
+		/// <summary>The default task one is first created.</summary>
 		public const string TaskTag = "thema";
 
+		/// <summary>
+		/// Initializes a new <see cref="T:Bareplan.Core.Document"/>.
+		/// </summary>
 		public Document()
 		{
 			this.Steps = new Steps( this );
@@ -23,6 +29,9 @@ namespace Bareplan.Core {
 			this.NeedsSaving = true;
 		}
 
+		/// <summary>
+		/// Adds a new date/pair as the last row.
+		/// </summary>
 		public void AddLast()
 		{
 			DateTime date = this.LastDate;
@@ -36,6 +45,12 @@ namespace Bareplan.Core {
 			this.NeedsSaving = true;
 		}
 
+		/// <summary>
+		/// Modify the specified the date/task at the given row number.
+		/// </summary>
+		/// <param name="rowNumber">The row number to modify.</param>
+		/// <param name="date">A <see cref="DateTime"/>.</param>
+		/// <param name="task">A task.</param>
 		public void Modify(int rowNumber, DateTime date, string task)
 		{
 			this.dates[ rowNumber ] = date;
@@ -43,6 +58,10 @@ namespace Bareplan.Core {
 			this.NeedsSaving = true;
 		}
 
+		/// <summary>
+		/// Inserts a new date/task pair before the given position.
+		/// </summary>
+		/// <param name="i">The index of the position to insert in.</param>
 		public void InsertRow(int i)
 		{
 			this.tasks.Insert( i, TaskTag + ( i + 1 ).ToString() );
@@ -50,11 +69,23 @@ namespace Bareplan.Core {
 			this.NeedsSaving = true;
 		}
 
+		/// <summary>
+		/// Inserts a task with the default <see cref="TaskTag"/>.
+		/// </summary>
+		/// <param name="i">The index of the position to insert in.</param>
+		/// <seealso cref="M:InsertTask"/>		
 		public void InsertTask(int i)
 		{
 			this.InsertTask( i, TaskTag + ( i + 1 ).ToString() );
 		}
 
+		/// <summary>
+		/// Inserts the task with the given value.
+		/// Adds a new date at the end of dates,
+		/// so both lists are kept of equal length.
+		/// </summary>
+		/// <param name="i">The index.</param>
+		/// <param name="task">The value of the task.</param>
 		public void InsertTask(int i, string task)
 		{
 			this.tasks.Insert( i, task );
@@ -62,6 +93,13 @@ namespace Bareplan.Core {
 			this.NeedsSaving = true;
 		}
 
+		/// <summary>
+		/// Inserts a date, honoring the steps.
+		/// A new task (with default contents) is added at the end of tasks,
+		/// so both lists are kept of equal length.
+		/// </summary>
+		/// <param name="rowNumber">The position to insert in.</param>
+		/// <seealso cref="TaskTag"/> 
 		public void InsertDate(int rowNumber)
 		{
 			int count = this.tasks.Count;
@@ -73,6 +111,10 @@ namespace Bareplan.Core {
 			this.NeedsSaving = true;
 		}
 
+		/// <summary>
+		/// Removes the pair date/task at the specified position.
+		/// </summary>
+		/// <param name="i">The position to remove.</param>
 		public void Remove(int i)
 		{
 			if ( this.CountDates > i ) {
@@ -83,6 +125,12 @@ namespace Bareplan.Core {
 			this.NeedsSaving = true;
 		}
 
+		/// <summary>
+		/// Removes the task at a given position.
+		/// A new task is added at the end of the tasks,
+		/// so both lists are kept of equal length.
+		/// </summary>
+		/// <param name="i">The index.</param>
 		public void RemoveTask(int i)
 		{
 			if ( this.CountDates > i ) {
@@ -93,6 +141,12 @@ namespace Bareplan.Core {
 			this.NeedsSaving = true;
 		}
 
+		/// <summary>
+		/// Removes the date at a given position.
+		/// A new date is added at the end of the dates,
+		/// so both lists are kept of equal length.
+		/// </summary>
+		/// <param name="i">The index.</param>
 		public void RemoveDate(int i)
 		{
 			if ( this.CountDates > i ) {
@@ -103,7 +157,13 @@ namespace Bareplan.Core {
 			this.NeedsSaving = true;
 		}
 
-		public KeyValuePair<DateTime, string> GotoFirst()
+		/// <summary>
+		/// Goes to the first date/task entry.
+		/// </summary>
+		/// <returns>
+		/// A <see cref="T:System.Collections.Generic.KeyValuePair"/> with date&amp;task.
+		/// </returns>
+		public Pair GotoFirst()
 		{
 			this.enumDates = this.dates.GetEnumerator();
 			this.enumTasks = this.tasks.GetEnumerator();
@@ -112,7 +172,13 @@ namespace Bareplan.Core {
 			return this.Next();
 		}
 
-		public KeyValuePair<DateTime, string> Next()
+		/// <summary>
+		/// Returns the current date/task entry.
+		/// </summary>
+		/// <returns>
+		/// A <see cref="T:System.Collections.Generic.KeyValuePair"/> with date&amp;task.
+		/// </returns>
+		public Pair Next()
 		{
 			this.hasNext = ( this.enumDates.MoveNext() && this.enumTasks.MoveNext() );
 			
@@ -128,30 +194,55 @@ namespace Bareplan.Core {
 				int numDates = this.CountDates;
 
 				if ( numDates > 0 ) {
-					toret = this.dates [numDates - 1];
+					toret = this.dates[ numDates - 1 ];
 				}
 
 				return toret;
 			}
 		}
 
-		public bool IsEnd {
-			get { return !this.hasNext; }
+		/// <summary>
+		/// Tells whether the end of the document has been reached.
+		/// </summary>
+		/// <returns><c>true</c>, if end was reached, <c>false</c> otherwise.</returns>
+		/// <seealso cref="M:Document.Next"/>
+		/// <seealso cref="M:Document.GotoFirst"/>
+		public bool IsEnd()
+		{
+			return !this.hasNext;
 		}
 
+		/// <summary>
+		/// Gets the number of stored dates.
+		/// </summary>
+		/// <value>The count of dates.</value>
 		public int CountDates {
 			get { return this.dates.Count; }
 		}
 
+		/// <summary>
+		/// Gets the number of stored tasks.
+		/// </summary>
+		/// <value>The count of tasks.</value>
 		public int CountTasks {
 			get { return this.tasks.Count; }
 		}
 			
+		/// <summary>
+		/// Gets the date at the given position.
+		/// </summary>
+		/// <returns>A <see cref="System.DateTime"/>.</returns>
+		/// <param name="i">The index.</param>
 		public DateTime GetDate(int i)
 		{
 			return this.dates[ i ];
 		}
 
+		/// <summary>
+		/// Gets the task at the given position.
+		/// </summary>
+		/// <returns>The task.</returns>
+		/// <param name="i">The index.</param>
 		public string GetTask(int i)
 		{
 			return this.tasks[ i ];
@@ -175,22 +266,43 @@ namespace Bareplan.Core {
 			this.NeedsSaving = true;
 		}
 
+		/// <summary>
+		/// Gets all dates.
+		/// </summary>
+		/// <value>The dates, as a <see cref="T:System.Collections.ObjectModel.ReadOnlyCollection"/>.</value>
 		public ReadOnlyCollection<DateTime> Dates {
 			get { return new ReadOnlyCollection<DateTime>( this.dates.ToArray() ); }
 		}
 
+		/// <summary>
+		/// Gets all tasks.
+		/// </summary>
+		/// <value>The tasks, as a <see cref="T:System.Collections.ObjectModel.ReadOnlyCollection"/>.</value>
 		public ReadOnlyCollection<string> Tasks {
 			get { return new ReadOnlyCollection<string>( this.tasks.ToArray() ); }
 		}
 
+		/// <summary>
+		/// Gets or sets the name of the file for this planning document.
+		/// </summary>
+		/// <value>The name of the file.</value>
 		public string FileName {
 			get; set;
 		}
 
+		/// <summary>
+		/// Gets a value indicating whether
+		/// this <see cref="T:Bareplan.Core.Document"/> has a file name.
+		/// </summary>
+		/// <value><c>true</c> if has name; otherwise, <c>false</c>.</value>
 		public bool HasName {
 			get { return ( this.FileName.Length > 0 ); }
 		}
 
+		/// <summary>
+		/// Gets or sets the initial date.
+		/// </summary>
+		/// <value>The initial date, as a <see cref="T:System.DateTime"/>.</value>
 		public DateTime InitialDate {
 			get {
 				return this.initialDate;
@@ -204,6 +316,11 @@ namespace Bareplan.Core {
 			}
 		}
 
+		/// <summary>
+		/// Gets the steps for creating new date/task pairs.
+		/// A step is an amout in days.
+		/// </summary>
+		/// <value>The <see cref="Steps"/>.</value>
 		public Steps Steps {
 			get; private set;
 		}

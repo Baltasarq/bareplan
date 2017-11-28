@@ -24,8 +24,6 @@ Global
 		Policies = $0
 		$0.DotNetNamingPolicy = $1
 		$1.DirectoryNamespaceAssociation = PrefixedHierarchical
-		$1.ResourceNamePolicy = FileFormatDefault
 		$0.VersionControlPolicy = $2
-		$2.inheritsSet = Mono
 	EndGlobalSection
 EndGlobal

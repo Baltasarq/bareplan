@@ -3,16 +3,26 @@
 namespace Bareplan.Core {
 	using System;
 	using System.Xml;
+	using System.Web;
 	using System.Text;
 	using System.Collections.Generic;
 	using System.Globalization;
 
+	/// <summary>
+	/// Makes the document persist using XML.
+	/// </summary>
 	public class XmlDocumentPersistence: DocumentPersistence {
+		/// <summary>The default file extension.</summary>
 		public const string DefaultExt = "bar";
+		/// <summary>The XML tag for the collection of tasks.</summary>
 		public const string TasksTag = "tasks";
+		/// <summary>The XML tag for a single task.</summary>
 		public const string TaskTag = "task";
+		/// <summary>The XML tag for the stored steps.</summary>
 		public const string StepsTag = "steps";
+		/// <summary>The XML tag for the initial date.</summary>
 		public const string InitialDateTag = "initialdate";
+		/// <summary>The XML tag for a date.</summary>
 		public const string DateTag = "date";
 
 		/// <summary>
@@ -53,11 +63,11 @@ namespace Bareplan.Core {
 
 			// Write date, task pairs
 			KeyValuePair<DateTime, string> pair = this.Document.GotoFirst();
-			while( !this.Document.IsEnd ) {
+			while( !this.Document.IsEnd() ) {
 				// Tasks
 				writer.WriteStartElement( TaskTag );
 				writer.WriteAttributeString( DateTag,  pair.Key.ToString( "yyyy-MM-dd" ) );
-				writer.WriteString( pair.Value );
+				writer.WriteString( HttpUtility.HtmlEncode( pair.Value ) );
 				writer.WriteEndElement();
 
 				pair = this.Document.Next();
@@ -96,7 +106,7 @@ namespace Bareplan.Core {
 							var date = element.Attributes.GetNamedItem( DateTag );
 
 							if ( date != null ) {
-								task = element.InnerText;
+								task = HttpUtility.HtmlDecode( element.InnerText );
 							} else {
 								throw new XmlException( "missing date in task" );
 							}
@@ -145,4 +155,3 @@ namespace Bareplan.Core {
 		}
 	}
 }
-

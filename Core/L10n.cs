@@ -4,8 +4,12 @@ namespace Bareplan.Core {
 	using System.Globalization;
 	using System.Collections.ObjectModel;
 
-	public static class StringsL18n {
-		public enum StringId {
+	/// <summary>
+	/// The localization 
+	/// </summary>
+	public static class L10n {
+		/// <summary>An identifier for localized strings.</summary>
+		public enum Id {
 			MnFile,
 			MnEdit,
 			MnView,
@@ -38,6 +42,8 @@ namespace Bareplan.Core {
 			StInserting,
 			StRemoving,
 			HdNum,
+			HdSession,
+			HdWeek,
 			HdDay,
 			HdDate,
 			HdTask,
@@ -47,31 +53,32 @@ namespace Bareplan.Core {
 			ErAccessingFile,
 		};
 
+		///<summary>The collection of localized Spanish strings.</summary>
 		public static readonly ReadOnlyCollection<string> StringsEN =
 				new ReadOnlyCollection<string>( new string[] {
-				"&File",
-				"&Edit",
-				"&View",
-				"&Help",
-				"&Quit",
-				"&About...",
-				"&Open",
-				"&Save",
-				"&Save as...",
-				"&Close",
-				"&Export",
-				"&Preferences",
-				"Pr&operties",
-				"&Increment font size",
-				"&Decrement font size",
-				"&Insert row",
+				"File",
+				"Edit",
+				"View",
+				"Help",
+				"Quit",
+				"About...",
+				"Open",
+				"Save",
+				"Save as...",
+				"Close",
+				"Export",
+				"Preferences",
+				"Properties",
+				"Increment font size",
+				"Decrement font size",
+				"Insert row",
 				"Insert date",
 				"Insert task",
-				"&Add row",
-				"&Remove row",
+				"Add row",
+				"Remove row",
 				"Remove date",
 				"Remove task",
-				"&New",
+				"New",
 				"Language",
 				"Initial date",
 				"Steps",
@@ -81,6 +88,8 @@ namespace Bareplan.Core {
 				"Insertando",
 				"Eliminando",
 				"#",
+				"Session",
+				"Week",
 				"Day",
 				"Date",
 				"Task",
@@ -91,31 +100,32 @@ namespace Bareplan.Core {
 			}
 		);
 
+		///<summary>The collection of localized Spanish strings.</summary>
 		public static readonly ReadOnlyCollection<string> StringsES =
 			new ReadOnlyCollection<string>( new string[] {
-				"&Archivo",
-				"&Editar",
-				"&Ver",
-				"&Ayuda",
-				"&Salir",
-				"&Acerca de...",
-				"&Abrir",
-				"&Guardar",
-				"&Guardar como...",
-				"&Cerrar",
-				"&Exportar",
-				"&Preferencias",
-				"Pr&opiedades",
-				"&Incrementar medida de fuente",
-				"&Decrement medida de fuente",
-				"&Inserta fila",
+				"Archivo",
+				"Editar",
+				"Ver",
+				"Ayuda",
+				"Salir",
+				"Acerca de...",
+				"Abrir",
+				"Guardar",
+				"Guardar como...",
+				"Cerrar",
+				"Exportar",
+				"Preferencias",
+				"Propiedades",
+				"Incrementar medida de fuente",
+				"Decrement medida de fuente",
+				"Inserta fila",
 				"Inserta fecha",
 				"Insertar tarea",
-				"Agregar &fila",
-				"&Eliminar fila",
+				"Agregar fila",
+				"Eliminar fila",
 				"Eliminar fecha",
 				"Eliminar tarea",
-				"&Nuevo",
+				"Nuevo",
 				"Idioma",
 				"Fecha de inicio",
 				"Pasos",
@@ -125,6 +135,8 @@ namespace Bareplan.Core {
 				"Inserting",
 				"Removing",
 				"#",
+				"Sesión",
+				"Semana",
 				"Día",
 				"Fecha",
 				"Tarea",
@@ -137,6 +149,8 @@ namespace Bareplan.Core {
 
 		private static ReadOnlyCollection<string> strings = StringsEN;
 
+		/// <summary>Sets the language for this app.</summary>
+		/// <param name="locale">A <see cref="CultureInfo"/> locale.</param>
 		public static void SetLanguage(CultureInfo locale)
 		{
 
@@ -151,7 +165,10 @@ namespace Bareplan.Core {
 			return;
 		}
 
-		public static string Get(StringId id)
+		/// <summary>Gets the localized string for the given id.</summary>
+		/// <returns>The localized string.</returns>
+		/// <param name="id">An identifier, as an <see cref="T:Id"/>.</param>
+		public static string Get(Id id)
 		{
 			string toret = null;
 			int numId = (int) id;

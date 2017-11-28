@@ -10,22 +10,61 @@ namespace Bareplan.Gui {
 	using Bareplan.Core;
 	
 	public partial class MainWindow: Form {
+		/// <summary>Fonts are incremented by 2 units each time.</summary>
 		public const int FontStep = 2;
+		/// <summary>Represents the order of columns in the gridview.</summary>
 		public enum ColsIndex { Num, DoW, Date, Task };
+		/// <summary>Tag in the configuration file for the width of the window.</summary>
 		public const string EtqWidth  = "width";
+		/// <summary>Tag in the configuration file for the height of the window.</summary>
 		public const string EtqHeight = "height";
+		/// <summary>Tag in the configuration file for the locale of the app.</summary>
 		public const string EtqLocale = "locale";
+		/// <summary>The name of the confif file.</summary>
 		public const string CfgFileName = ".bareplan.cfg";
+		/// <summary>Strings for the context menu.</summary>
+		public static readonly Func<string>[] GetContextItemCaptions = {
+				() => L10n.Get( L10n.Id.OpAdd ),
+		    	() => L10n.Get( L10n.Id.OpInsert ),
+		    	() => L10n.Get( L10n.Id.OpInsertDate ),
+		    	() => L10n.Get( L10n.Id.OpInsertTask ),
+		    	() => "-",
+		    	() => L10n.Get( L10n.Id.OpRemove ),
+		    	() => L10n.Get( L10n.Id.OpRemoveDate ),
+		    	() => L10n.Get( L10n.Id.OpRemoveTask )
+		};
+		/// <summary>Actions for the context menu.</summary>
+		public static readonly Func<MainWindow, EventHandler>[] GetContextItemActions = {
+				(MainWindow mw) => (sender, e) => mw.OnAdd(),
+			    (MainWindow mw) => (sender, e) => mw.OnInsertRow(),
+			    (MainWindow mw) => (sender, e) => mw.OnInsertDate(),
+			    (MainWindow mw) => (sender, e) => mw.OnInsertTask(),
+			    (MainWindow mw) => (sender, e) => {},
+			    (MainWindow mw) => (sender, e) => mw.OnRemove(),
+			    (MainWindow mw) => (sender, e) => mw.OnRemoveDate(),
+			    (MainWindow mw) => (sender, e) => mw.OnRemoveTask()
+		};
 
-		public MainWindow()
+		private void BuildContextMenu()
 		{
-			this.cfgFile = this.filePath = "";
-			this.doc = null;
-		
-			this.Shown += (sender, e) => this.OnShow();
-			this.Build();
-			this.DeactivateGui();
-			this.OnIncFont();
+			// Menu item's captions
+			if ( this.cntxtMenu == null ) {
+				this.cntxtMenu = new ContextMenu();
+				this.grdPlanning.ContextMenu = this.cntxtMenu;
+				
+				foreach(Func<string> getContextItemCaption in GetContextItemCaptions) {
+					this.cntxtMenu.MenuItems.Add( getContextItemCaption() );
+				}
+			} else {
+				for(int i = 0; i < GetContextItemCaptions.Length; ++i) {
+					this.cntxtMenu.MenuItems[ i ].Text = GetContextItemCaptions[ i ]();
+				}
+			}
+			
+			// Menu Item's actions
+			for(int i = 0; i < GetContextItemActions.Length; ++i) {
+				this.cntxtMenu.MenuItems[ i ].Click += GetContextItemActions[ i ]( this );
+			}
 		}
 
 		private void BuildCalendarTab(Panel panel)
@@ -243,29 +282,29 @@ namespace Bareplan.Gui {
 		{
 			// Menu options
 			this.mMain = new MainMenu();
-			this.mFile = new MenuItem( "&Archivo" );
-			this.mHelp = new MenuItem( "&Ayuda" );
-			this.mEdit = new MenuItem( "&Editar" );
-			this.opQuit = new MenuItem( "&Salir" );
-			this.opAbout = new MenuItem( "&Acerca de..." );
-			this.mView = new MenuItem( "&Ver" );
-			this.opExport = new MenuItem( "&Exportar" );
-			this.opOpen = new MenuItem( "&Abrir" );
-			this.opNew = new MenuItem( "&Nuevo" );
-			this.opSave = new MenuItem( "&Guardar" );
-			this.opSaveAs = new MenuItem( "G&uardar como..." );
-			this.opClose = new MenuItem( "&Cerrar" );
-			this.opAdd = new MenuItem( "&Agregar fila" );
-			this.opProperties = new MenuItem( "&Propiedades" );
-			this.opInsertTask = new MenuItem( "&Insertar tarea" );
-			this.opInsert = new MenuItem( "&Insertar fila" );
-			this.opInsertDate = new MenuItem( "&Insertar fecha" );
-			this.opRemove = new MenuItem( "Eliminar &fila" );
-			this.opRemoveTask = new MenuItem( "Eliminar &tarea" );
-			this.opRemoveDate = new MenuItem( "Eliminar f&echa" );
-			this.opIncFont = new MenuItem( "&Incrementar fuente" );
-			this.opDecFont = new MenuItem( "&Decrementar fuente" );
-			this.opSettings = new MenuItem( "&Preferencias" );
+			this.mFile = new MenuItem( "Archivo" );
+			this.mHelp = new MenuItem( "Ayuda" );
+			this.mEdit = new MenuItem( "Editar" );
+			this.opQuit = new MenuItem( "Salir" );
+			this.opAbout = new MenuItem( "Acerca de..." );
+			this.mView = new MenuItem( "Ver" );
+			this.opExport = new MenuItem( "Exportar" );
+			this.opOpen = new MenuItem( "Abrir" );
+			this.opNew = new MenuItem( "Nuevo" );
+			this.opSave = new MenuItem( "Guardar" );
+			this.opSaveAs = new MenuItem( "Guardar como..." );
+			this.opClose = new MenuItem( "Cerrar" );
+			this.opAdd = new MenuItem( "Agregar fila" );
+			this.opProperties = new MenuItem( "Propiedades" );
+			this.opInsertTask = new MenuItem( "Insertar tarea" );
+			this.opInsert = new MenuItem( "Insertar fila" );
+			this.opInsertDate = new MenuItem( "Insertar fecha" );
+			this.opRemove = new MenuItem( "Eliminar fila" );
+			this.opRemoveTask = new MenuItem( "Eliminar tarea" );
+			this.opRemoveDate = new MenuItem( "Eliminar fecha" );
+			this.opIncFont = new MenuItem( "Incrementar fuente" );
+			this.opDecFont = new MenuItem( "Decrementar fuente" );
+			this.opSettings = new MenuItem( "Preferencias" );
 
 			// Build the menu
 			this.mMain.MenuItems.Add( this.mFile );
@@ -395,7 +434,7 @@ namespace Bareplan.Gui {
 				Dock = DockStyle.Top
 			};
 			this.lblLocales = new Label {
-				Text = StringsL18n.Get( StringsL18n.StringId.LblLanguage ),
+				Text = L10n.Get( L10n.Id.LblLanguage ),
 				Dock = DockStyle.Left
 			};
 
@@ -408,7 +447,8 @@ namespace Bareplan.Gui {
 			};
 			CultureInfo[] locales = CultureInfo.GetCultures( CultureTypes.SpecificCultures );
 			Array.Sort( locales,
-				((CultureInfo x, CultureInfo y) => x.ToString().CompareTo( y.ToString() ) )
+				((CultureInfo x, CultureInfo y) =>
+					String.Compare( x.ToString(), y.ToString(), false, CultureInfo.InvariantCulture ) )
 			);
 
 			this.cbLocales.Items.Add( "<local>" );
@@ -431,43 +471,43 @@ namespace Bareplan.Gui {
 			try {
 				this.bmpAppIcon = new Bitmap(
 					System.Reflection.Assembly.GetEntryAssembly( ).
-						GetManifestResourceStream( "bareplan.Res.appIcon.png" ) );
+						GetManifestResourceStream( "Bareplan.Res.appIcon.png" ) );
 
 				this.addRowIcon = new Bitmap(
 					System.Reflection.Assembly.GetEntryAssembly( ).
-						GetManifestResourceStream( "bareplan.Res.addIcon.png" ) );
+						GetManifestResourceStream( "Bareplan.Res.addIcon.png" ) );
 
 				this.calendarViewIcon = new Bitmap(
 					System.Reflection.Assembly.GetEntryAssembly( ).
-						GetManifestResourceStream( "bareplan.Res.calendarViewIcon.png" ) );
+						GetManifestResourceStream( "Bareplan.Res.calendarViewIcon.png" ) );
 
 				this.exportIcon = new Bitmap(
 					System.Reflection.Assembly.GetEntryAssembly( ).
-						GetManifestResourceStream( "bareplan.Res.exportIcon.png" ) );
+						GetManifestResourceStream( "Bareplan.Res.exportIcon.png" ) );
 
 				this.listIcon = new Bitmap(
 					System.Reflection.Assembly.GetEntryAssembly( ).
-						GetManifestResourceStream( "bareplan.Res.listIcon.png" ) );
+						GetManifestResourceStream( "Bareplan.Res.listIcon.png" ) );
 
 				this.newIcon = new Bitmap(
 					System.Reflection.Assembly.GetEntryAssembly( ).
-						GetManifestResourceStream( "bareplan.Res.newIcon.png" ) );
+						GetManifestResourceStream( "Bareplan.Res.newIcon.png" ) );
 
 				this.openIcon = new Bitmap(
 					System.Reflection.Assembly.GetEntryAssembly( ).
-						GetManifestResourceStream( "bareplan.Res.openIcon.png" ) );
+						GetManifestResourceStream( "Bareplan.Res.openIcon.png" ) );
 
 				this.propertiesIcon = new Bitmap(
 					System.Reflection.Assembly.GetEntryAssembly( ).
-						GetManifestResourceStream( "bareplan.Res.propertiesIcon.png" ) );
+						GetManifestResourceStream( "Bareplan.Res.propertiesIcon.png" ) );
 
 				this.saveIcon = new Bitmap(
 					System.Reflection.Assembly.GetEntryAssembly( ).
-						GetManifestResourceStream( "bareplan.Res.saveIcon.png" ) );
+						GetManifestResourceStream( "Bareplan.Res.saveIcon.png" ) );
 
 				this.settingsIcon = new Bitmap(
 					System.Reflection.Assembly.GetEntryAssembly( ).
-						GetManifestResourceStream( "bareplan.Res.settingsIcon.png" ) );
+						GetManifestResourceStream( "Bareplan.Res.settingsIcon.png" ) );
 			} catch(Exception e)
 			{
 				Debug.WriteLine( "ERROR loading icons: " + e.Message);
@@ -566,8 +606,8 @@ namespace Bareplan.Gui {
 
 		/// <summary>
 		/// Resizes the window, also the planning.
-		/// Date				 20%
-		/// Task				 80%
+		/// The width of the columns of the planning
+		/// is calculated by using percentages.
 		/// </summary>
 		private void ResizeWindow()
 		{
@@ -609,28 +649,12 @@ namespace Bareplan.Gui {
 		private DataGridView grdPlanning;
 		private Panel pnlConfigContainer;
 		private TableLayoutPanel pnlSettings;
-		private MainMenu mMain;
 		private StatusBar stbStatus;
 		private Panel pnlAbout;
 		private Panel pnlPlanning;
 		private Label lblLocales;
 		private ComboBox cbLocales;
 		private MonthCalendar calendar;
-		private MenuItem mFile;
-		private MenuItem mEdit;
-		private MenuItem mView;
-		private MenuItem mHelp;
-		private MenuItem opExport;
-		private MenuItem opProperties;
-		private MenuItem opNew;
-		private MenuItem opOpen;
-		private MenuItem opSave;
-		private MenuItem opSaveAs;
-		private MenuItem opClose;
-		private MenuItem opQuit;
-		private MenuItem opAdd;
-		private MenuItem opAbout;
-		private MenuItem opSettings;
 		private Label lblAbout;
 		private Label lblInitialDate;
 		private Label lblSteps;
@@ -649,6 +673,25 @@ namespace Bareplan.Gui {
 		private ToolBar tbBar;
 		private TabControl tabbed;
 		private TextBox txtDesc;
+		
+		private MainMenu mMain;		
+		private MenuItem mFile;
+		private MenuItem mEdit;
+		private MenuItem mView;
+		private MenuItem mHelp;
+		private MenuItem opExport;
+		private MenuItem opProperties;
+		private MenuItem opNew;
+		private MenuItem opOpen;
+		private MenuItem opSave;
+		private MenuItem opSaveAs;
+		private MenuItem opClose;
+		private MenuItem opQuit;
+		private MenuItem opAdd;
+		private MenuItem opAbout;
+		private MenuItem opSettings;
+		
+		private ContextMenu cntxtMenu;
 	}
 }
 

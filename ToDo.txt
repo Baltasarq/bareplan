@@ -1,1 +1,2 @@
-﻿
+﻿- Cuando recorres el menú antes de ir a "nuevo", no visualiza el grid
+- Cuando borras sin haber seleccionado, da error.
