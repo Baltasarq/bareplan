@@ -60,6 +60,7 @@
     <Compile Include="Gui\ExportDlg.cs" />
     <Compile Include="Core\ExportInfo.cs" />
     <Compile Include="Core\TextExporter.cs" />
+    <Compile Include="Core\GCalExporter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Gui\" />

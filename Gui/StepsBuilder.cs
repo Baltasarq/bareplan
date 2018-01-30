@@ -23,11 +23,11 @@ namespace Bareplan.Gui {
 			try {
 				this.addIcon = new Bitmap(
 					System.Reflection.Assembly.GetEntryAssembly( ).
-						GetManifestResourceStream( "bareplan.Res.addIcon.png" ) );
+						GetManifestResourceStream( "Bareplan.Res.addIcon.png" ) );
 						
 				this.removeIcon = new Bitmap(
 					System.Reflection.Assembly.GetEntryAssembly( ).
-						GetManifestResourceStream( "bareplan.Res.removeIcon.png" ) );
+						GetManifestResourceStream( "Bareplan.Res.removeIcon.png" ) );
 			} catch(Exception e)
 			{
 				Debug.WriteLine( "ERROR loading icons: " + e.Message);

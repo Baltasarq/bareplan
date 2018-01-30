@@ -9,10 +9,10 @@ namespace Bareplan.Core {
 	public class ExportInfo {
 		public const string DefaultExportFileName = "out";
 		/// <summary>The file type to create.</summary>
-		public enum FileType { Csv, Html, Text };
+		public enum FileType { Csv, Html, Text, GCal };
 		/// <summary>File extensions for each file type.</summary>
 		public static readonly ReadOnlyCollection<string> FileExt = new ReadOnlyCollection<string>(
-			new []{ "csv", ".html", "txt" } );
+			new []{ "csv", ".html", "txt", "csv" } );
 		/// <summary>The columns to dump.</summary>
 		public enum Column { Session, Week, Day, Date, Task };
 		/// <summary>Obtains the localized column headers.</summary>

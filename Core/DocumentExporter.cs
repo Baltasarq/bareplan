@@ -200,6 +200,9 @@ namespace Bareplan.Core {
 				case ExportInfo.FileType.Text:
 					toret = new TextExporter( info );
 					break;
+				case ExportInfo.FileType.GCal:
+					toret = new GCalExporter( info );
+					break;
 			}
 			
 			Debug.Assert( toret != null, "Exporter.Create: No exporter found for: " + info.Type );
