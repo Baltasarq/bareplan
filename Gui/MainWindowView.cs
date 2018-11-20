@@ -161,12 +161,12 @@ namespace Bareplan.Gui {
 			this.grdPlanning.AllowUserToOrderColumns = false;
 
 			// Create tabbed control
-			this.tabbed = new TabControl() { Dock = DockStyle.Fill, Alignment = TabAlignment.Bottom };
+			this.tabbed = new TabControl { Dock = DockStyle.Fill, Alignment = TabAlignment.Top };
 			this.tabbed.ImageList = new ImageList();
 			this.tabbed.ImageList.Images.AddRange( new Image[]{ this.listIcon, this.calendarViewIcon } );
 			this.tabbed.ImageList.ImageSize = new Size( 16, 16 );
-			var tabPlanning = new TabPage() { ImageIndex = 0 };
-			var tabCalendar = new TabPage() { ImageIndex = 1 };
+			var tabPlanning = new TabPage { Text = L10n.Get( L10n.Id.HdSession ), ImageIndex = 0 };
+			var tabCalendar = new TabPage { Text = L10n.Get (L10n.Id.HdDate), ImageIndex = 1 };
 			tabPlanning.Controls.Add( this.grdPlanning );
 			var pnlCalendar = new Panel();
 			this.BuildCalendarTab( pnlCalendar );
@@ -181,7 +181,7 @@ namespace Bareplan.Gui {
 			// Layout
 			this.pnlPlanning = new Panel { Dock = DockStyle.Fill };
 			this.pnlPlanning.SuspendLayout();
-			this.pnlPlanning.Controls.Add( this.grdPlanning );
+			this.pnlPlanning.Controls.Add( this.tabbed );
 		}
 
 		private void BuildPropertiesContainer()
@@ -304,6 +304,8 @@ namespace Bareplan.Gui {
 			this.opRemoveDate = new MenuItem( "Eliminar fecha" );
 			this.opIncFont = new MenuItem( "Incrementar fuente" );
 			this.opDecFont = new MenuItem( "Decrementar fuente" );
+			this.opViewCalendar = new MenuItem( "Ver calendario" );
+			this.opViewSessions = new MenuItem( "Ver sesiones" );
 			this.opSettings = new MenuItem( "Preferencias" );
 
 			// Build the menu
@@ -318,6 +320,9 @@ namespace Bareplan.Gui {
 			this.mFile.MenuItems.Add ( this.opExport );
 			this.mFile.MenuItems.Add ( this.opClose );
 			this.mFile.MenuItems.Add( this.opQuit );
+			this.mView.MenuItems.Add( this.opViewSessions );
+			this.mView.MenuItems.Add( this.opViewCalendar );
+			this.mView.MenuItems.Add( "-" );
 			this.mView.MenuItems.Add( this.opDecFont );
 			this.mView.MenuItems.Add( this.opIncFont );
 			this.mEdit.MenuItems.Add( this.opAdd );
@@ -361,6 +366,8 @@ namespace Bareplan.Gui {
 			this.opRemoveDate.Click += ( obj, evt ) => this.OnRemoveDate();
 			this.opIncFont.Click += ( obj, evt ) => this.OnIncFont();
 			this.opDecFont.Click += ( obj, evt ) => this.OnDecFont();
+			this.opViewSessions.Click += ( obj, evt ) => this.ChangeToSessionsTab();
+			this.opViewCalendar.Click += ( obj, evt ) => this.ChangeToCalendarTab();
 			this.opSettings.Click += ( obj, evt ) => this.OnSettings();
 
 			this.Menu = this.mMain;
@@ -670,6 +677,8 @@ namespace Bareplan.Gui {
 		private MenuItem opRemoveDate;
 		private MenuItem opIncFont;
 		private MenuItem opDecFont;
+		private MenuItem opViewSessions;
+		private MenuItem opViewCalendar;
 		private ToolBar tbBar;
 		private TabControl tabbed;
 		private TextBox txtDesc;
