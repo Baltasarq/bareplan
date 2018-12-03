@@ -1,8 +1,11 @@
 bin
 obj
 packages
-*.userprefs
 *~
+
+# Preferences
+*.userprefs
+.vs/
 
 # Compiled Object files
 *.slo

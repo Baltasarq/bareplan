@@ -28,13 +28,13 @@ namespace Bareplan.Gui {
 			this.OnIncFont();
 		}
 		
-		private void OnShow()
+		void OnShow()
 		{
 			filePath = Environment.GetFolderPath( Environment.SpecialFolder.MyDocuments );
 			this.ReadConfiguration();
 		}
 
-		private void OnToolbarButton(ToolBarButton bt)
+		void OnToolbarButton(ToolBarButton bt)
 		{
 			switch ( this.tbBar.Buttons.IndexOf( bt ) ) {
 			case 0:
@@ -65,7 +65,7 @@ namespace Bareplan.Gui {
 			return;
 		}
 
-		private void ChangeUILanguage(CultureInfo locale)
+		void ChangeUILanguage(CultureInfo locale)
 		{
 			L10n.SetLanguage( locale );
 			
@@ -86,6 +86,8 @@ namespace Bareplan.Gui {
 			this.opExport.Text = L10n.Get( L10n.Id.OpExport );
 			this.opQuit.Text = L10n.Get( L10n.Id.OpQuit );
 
+			this.opViewCalendar.Text = L10n.Get( L10n.Id.OpViewCalendar );
+			this.opViewSessions.Text = L10n.Get( L10n.Id.OpViewSessions );
 			this.opIncFont.Text = L10n.Get( L10n.Id.OpIncFont );
 			this.opDecFont.Text = L10n.Get( L10n.Id.OpDecFont );
 
@@ -122,7 +124,7 @@ namespace Bareplan.Gui {
 		/// <summary>
 		/// Deactivates the GUI. Uses EnableGui.
 		/// </summary>
-		private void DeactivateGui()
+		void DeactivateGui()
 		{
 			this.EnableGui( false );
 		}
@@ -130,7 +132,7 @@ namespace Bareplan.Gui {
 		/// <summary>
 		/// Activates the GUI. Uses EnableGui.
 		/// </summary>
-		private void ActivateGui()
+		void ActivateGui()
 		{
 			this.EnableGui( true );
 		}
@@ -141,7 +143,7 @@ namespace Bareplan.Gui {
 		/// <param name='active'>
 		/// Indicates whether the Gui should be enabled or disabled
 		/// </param>
-		private void EnableGui(bool active)
+		void EnableGui(bool active)
 		{
 			// Widgets
 			this.pnlPlanning.Visible = active;
@@ -172,7 +174,7 @@ namespace Bareplan.Gui {
 		/// <summary>
 		/// Sets the visible status to the default "Ready"
 		/// </summary>
-		private void SetStatus()
+		void SetStatus()
 		{
 			this.SetStatus( L10n.Get( L10n.Id.StReady ) );
 		}
@@ -183,13 +185,13 @@ namespace Bareplan.Gui {
 		/// <param name='msg'>
 		/// The new message to set as status.
 		/// </param>
-		private void SetStatus(string msg)
+		void SetStatus(string msg)
 		{
 			this.stbStatus.Text = msg;
 			Application.DoEvents();
 		}
 
-		private void ShowNoDocumentError()
+		void ShowNoDocumentError()
 		{
 			MessageBox.Show(
 				this,
@@ -200,22 +202,22 @@ namespace Bareplan.Gui {
 			);
 		}
 
-		private void OnIncFont()
+		void OnIncFont()
 		{
 			float size = this.planningFont.Size + FontStep;
 
 			this.planningFont = new Font( this.planningFont.FontFamily, size );
 			this.UpdateFont( FontStep );
-			this.ChangeToListTab();
+			this.ChangeToSessionsTab();
 		}
 
-		private void OnDecFont()
+		void OnDecFont()
 		{
 			float size = this.planningFont.Size - FontStep;
 
 			this.planningFont = new Font( this.planningFont.FontFamily, size );
 			this.UpdateFont( FontStep * -1 );
-			this.ChangeToListTab();
+			this.ChangeToSessionsTab();
 		}
 
 		/// <summary>
@@ -224,7 +226,7 @@ namespace Bareplan.Gui {
 		/// <param name='fontStep'>
 		/// The difference in size between the old font and the new font.
 		/// </param>
-		private void UpdateFont(int fontStep)
+		void UpdateFont(int fontStep)
 		{
 			int delta = 0;
 
@@ -258,19 +260,25 @@ namespace Bareplan.Gui {
 		/// <summary>
 		/// Show info about the application
 		/// </summary>
-		private void OnAbout()
+		void OnAbout()
 		{
 			this.pnlAbout.Show();
 		}
 
-		private void ChangeToListTab() {
+		void ChangeToSessionsTab()
+		{
 			this.tabbed.SelectedIndex = 0;
+		}
+
+		void ChangeToCalendarTab()
+		{
+			this.tabbed.SelectedIndex = 1;
 		}
 
 		/// <summary>
 		/// Raises the calendar date changed event.
 		/// </summary>
-		private void OnCalendarDateChanged() {
+		void OnCalendarDateChanged() {
 			int[] taskPositionsForDate = this.doc.LookForTasksIn( this.calendar.SelectionStart );
 
 			this.txtDesc.Clear();
@@ -284,7 +292,7 @@ namespace Bareplan.Gui {
 		/// <summary>
 		/// Activates the option for editing the steps for the document.
 		/// </summary>
-		private void OnProperties()
+		void OnProperties()
 		{
 			if ( this.doc != null ) {
 				this.edSteps.Text = String.Join( ", ", this.doc.Steps );
@@ -292,7 +300,7 @@ namespace Bareplan.Gui {
 				this.edSteps.SelectionStart = this.edSteps.TextLength;
 				this.edInitialDate.Value = this.doc.InitialDate;
 				this.pnlConfigContainer.Visible = true;
-				this.ChangeToListTab();
+				this.ChangeToSessionsTab();
 				this.edSteps.Focus();
 			} else {
 				this.ShowNoDocumentError();
@@ -302,7 +310,7 @@ namespace Bareplan.Gui {
 		/// <summary>
 		/// Activates saving the steps edited by the user.
 		/// </summary>
-		private void OnPropertiesPanelClosed()
+		void OnPropertiesPanelClosed()
 		{
 			if ( this.doc != null ) {
 				this.pnlConfigContainer.Hide();
@@ -317,7 +325,7 @@ namespace Bareplan.Gui {
 		/// <summary>
 		/// Inserts a new task without changing dates.
 		/// </summary>
-		private void OnInsertTask()
+		void OnInsertTask()
 		{
 			if ( this.doc != null ) {
 				int rowNumber = 0;
@@ -334,7 +342,7 @@ namespace Bareplan.Gui {
 					+ ": " + this.doc.Dates[ rowNumber ].ToShortDateString() );
 				this.doc.InsertTask( rowNumber );
 				this.UpdatePlanning( rowNumber );
-				this.ChangeToListTab();
+				this.ChangeToSessionsTab();
 				this.SetStatus();
 			} else {
 				this.ShowNoDocumentError();
@@ -343,7 +351,7 @@ namespace Bareplan.Gui {
 			return;
 		}
 
-		private void OnInsertRow()
+		void OnInsertRow()
 		{
 			if ( this.doc != null ) {
 				int rowNumber = 0;
@@ -361,7 +369,7 @@ namespace Bareplan.Gui {
 
 				this.doc.InsertRow( rowNumber );
 				this.UpdatePlanning( rowNumber );
-				this.ChangeToListTab();
+				this.ChangeToSessionsTab();
 				this.SetStatus();
 			} else {
 				this.ShowNoDocumentError();
@@ -370,7 +378,7 @@ namespace Bareplan.Gui {
 			return;
 		}
 
-		private void OnInsertDate()
+		void OnInsertDate()
 		{
 			if ( this.doc != null ) {
 				int rowNumber = 0;
@@ -388,7 +396,7 @@ namespace Bareplan.Gui {
 
 				this.doc.InsertDate( rowNumber );
 				this.UpdatePlanning( rowNumber );
-				this.ChangeToListTab();
+				this.ChangeToSessionsTab();
 				this.SetStatus();
 			} else {
 				this.ShowNoDocumentError();
@@ -397,7 +405,7 @@ namespace Bareplan.Gui {
 			return;
 		}
 
-		private void OnTabChanged()
+		void OnTabChanged()
 		{
 			if ( this.tabbed.SelectedIndex == 1 ) {
 				// Show the days in the calendar
@@ -416,7 +424,7 @@ namespace Bareplan.Gui {
 		/// <summary>
 		/// Remove a whole row
 		/// </summary>
-		private void OnRemove()
+		void OnRemove()
 		{
 			if ( this.doc != null ) {
 				var row = this.grdPlanning.CurrentRow;				
@@ -438,7 +446,7 @@ namespace Bareplan.Gui {
 									+ ": " + strDate + "/" + strTask );
 					this.doc.Remove( rowNumber );
 					this.UpdatePlanning( rowNumber );
-					this.ChangeToListTab();
+					this.ChangeToSessionsTab();
 					this.SetStatus();
 				}
 			} else {
@@ -448,7 +456,7 @@ namespace Bareplan.Gui {
 			return;
 		}
 
-		private void OnRemoveTask()
+		void OnRemoveTask()
 		{
 			if ( this.doc != null ) {
 				int rowNumber = 0;
@@ -467,7 +475,7 @@ namespace Bareplan.Gui {
 						+ ": " + strDate );
 					this.doc.RemoveTask( rowNumber );
 					this.UpdatePlanning( rowNumber );
-					this.ChangeToListTab();
+					this.ChangeToSessionsTab();
 					this.SetStatus();
 				}
 			} else {
@@ -477,7 +485,7 @@ namespace Bareplan.Gui {
 			return;
 		}
 
-		private void OnRemoveDate()
+		void OnRemoveDate()
 		{
 			if ( this.doc != null ) {
 				int rowNumber = 0;
@@ -496,7 +504,7 @@ namespace Bareplan.Gui {
 						+ ": " + strDate );
 					this.doc.RemoveDate( rowNumber );
 					this.UpdatePlanning( rowNumber );
-					this.ChangeToListTab();
+					this.ChangeToSessionsTab();
 					this.SetStatus();
 				}
 			} else {
@@ -509,7 +517,7 @@ namespace Bareplan.Gui {
 		/// <summary>
 		/// Adds a new row to the planning
 		/// </summary>
-		private void OnAdd()
+		void OnAdd()
 		{
 			if ( this.doc != null ) {
 				int rowNumber = this.doc.CountDates;
@@ -522,7 +530,7 @@ namespace Bareplan.Gui {
 				// Prepare the UI
 				this.grdPlanning.Rows.Add();
 				this.UpdatePlanningRow( rowNumber );
-				this.ChangeToListTab();
+				this.ChangeToSessionsTab();
 				this.SetStatus();
 			} else {
 				this.ShowNoDocumentError();
@@ -531,12 +539,12 @@ namespace Bareplan.Gui {
 			return;
 		}
 
-		private void UpdatePlanning()
+		void UpdatePlanning()
 		{
 			this.UpdatePlanning( 0 );
 		}
 
-		private void UpdatePlanning(int numRow)
+		void UpdatePlanning(int numRow)
 		{
 			if ( this.doc != null ) {
 				// Creates & updates rows
@@ -562,7 +570,7 @@ namespace Bareplan.Gui {
 			return;
 		}
 
-		private void UpdatePlanningRow(int rowIndex)
+		void UpdatePlanningRow(int rowIndex)
 		{
 			DateTimeFormatInfo dtfo = Locale.CurrentLocale.DateTimeFormat;
 
@@ -591,7 +599,7 @@ namespace Bareplan.Gui {
 		/// Gets the keyed value for date and task, and prepares and assigns them.
 		/// </summary>
 		/// <param name="row">The row index the edited cell sits in.</param>
-		private void OnRowEdited(int row)
+		void OnRowEdited(int row)
 		{
 			string strDate = (string) this.grdPlanning.Rows[ row ].Cells[ (int) ColsIndex.Date ].Value;
 			string strTask = (string) this.grdPlanning.Rows[ row ].Cells[ (int) ColsIndex.Task ].Value;
@@ -626,7 +634,7 @@ namespace Bareplan.Gui {
 		/// <summary>
 		/// Exports the data to other formats.
 		/// </summary>
-		private void OnExport()
+		void OnExport()
 		{
 			if ( this.doc != null ) {		
 				var dlgExport = new ExportDlg( this.Icon, this.doc, filePath );
@@ -644,22 +652,22 @@ namespace Bareplan.Gui {
 			return;
 		}
 
-		private void PrepareNewDocument()
+		void PrepareNewDocument()
 		{
 			this.doc = new Document();
 		}
 
-		private void OnNew()
+		void OnNew()
 		{
 			this.OnClose();
 			this.ActivateGui();
 			this.PrepareNewDocument();
-			this.ChangeToListTab();
+			this.ChangeToSessionsTab();
 			this.SetStatus();
 			this.SetWindowTitle( "nonamed.bar" );
 		}
 
-		private void OnClose()
+		void OnClose()
 		{
 			if ( this.doc != null
 			  && this.doc.NeedsSaving )
@@ -670,12 +678,12 @@ namespace Bareplan.Gui {
 			this.DeactivateGui();
 			this.doc = null;
 			this.grdPlanning.Rows.Clear();
-			this.ChangeToListTab();
+			this.ChangeToSessionsTab();
 			this.SetStatus();
 			this.SetWindowTitle( "" );
 		}
 
-		private void OnOpen()
+		void OnOpen()
 		{
 			var dlgOpenFile = new OpenFileDialog();
 
@@ -699,7 +707,7 @@ namespace Bareplan.Gui {
 					this.SetWindowTitle( this.doc.FileName );
 
 					this.UpdatePlanning();
-					this.ChangeToListTab();
+					this.ChangeToSessionsTab();
 					this.ActivateGui();
 				}
 			}
@@ -732,7 +740,7 @@ namespace Bareplan.Gui {
 			return;
 		}
 		
-		private void SetWindowTitle(string fileName)
+		void SetWindowTitle(string fileName)
 		{
 			if ( !string.IsNullOrWhiteSpace( fileName ) ) {
 				this.Text = Path.GetFileName( fileName ) + " - " + AppInfo.Name;
@@ -743,7 +751,7 @@ namespace Bareplan.Gui {
 			return;
 		}
 
-		private void Save(string fileName)
+		void Save(string fileName)
 		{
 			try {
 				if ( this.doc != null ) {
@@ -783,7 +791,7 @@ namespace Bareplan.Gui {
 			return;
 		}
 
-		private void OnSave()
+		void OnSave()
 		{
 			if ( this.doc != null ) {
 				bool saveIt = true;
@@ -816,7 +824,7 @@ namespace Bareplan.Gui {
 			return;
 		}
 
-		private void OnSaveAs()
+		void OnSaveAs()
 		{
 			if ( this.doc != null ) {
 				var dlgSaveFile = new SaveFileDialog () {
@@ -842,21 +850,21 @@ namespace Bareplan.Gui {
 		/// <summary>
 		/// Quit the application
 		/// </summary>
-		private void OnQuit()
+		void OnQuit()
 		{
 			this.OnClose();
 			this.WriteConfiguration();
 			Application.Exit();
 		}
 
-		private void OnSettings()
+		void OnSettings()
 		{
 			this.cbLocales.Text = Locale.CurrentLocaleToDescription();
 
 			this.pnlSettings.Show();
 		}
 
-		private void ChangeSettings()
+		void ChangeSettings()
 		{
 			Locale.SetLocaleFromDescription( this.cbLocales.Text );
 			this.ChangeUILanguage( Locale.CurrentLocale );
@@ -987,9 +995,9 @@ namespace Bareplan.Gui {
 			get; set;
 		}
 
-		private Document doc;
-		private string filePath;
-		private string cfgFile;
+		Document doc;
+		string filePath;
+		string cfgFile;
 
 	}
 }

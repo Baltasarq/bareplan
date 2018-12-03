@@ -7,6 +7,8 @@ namespace Bareplan.Gui {
 	using System.Collections.Generic;
 	using System.Windows.Forms;
 
+	using Core;
+
 	public class StepsBuilder: Form {
 		public StepsBuilder(Form parent, string currentSteps)
 		{
@@ -18,7 +20,7 @@ namespace Bareplan.Gui {
 			this.UpdateSteps();
 		}
 		
-		private void BuildIcons()
+		void BuildIcons()
 		{
 			try {
 				this.addIcon = new Bitmap(
@@ -35,42 +37,39 @@ namespace Bareplan.Gui {
 
 		}
 
-		private void BuildPanelStep()
+		void BuildPanelNewStep()
 		{
-			var pnlSteps = new FlowLayoutPanel() { Dock = DockStyle.Top };
-			pnlSteps.SuspendLayout();
-			var lblSteps = new Label() { Text = "Steps (in days)", Dock = DockStyle.Right };
+			var pnlNewStep = new Panel { Dock = DockStyle.Fill  };
+			var pnlSteps = new Panel { Dock = DockStyle.Top };
+			var lblNewStep = new Label { Text = L10n.Get( L10n.Id.LblNewStep ), Dock = DockStyle.Left };
 
 			this.spStep = new NumericUpDown { Minimum = 0, Maximum = 365, Dock = DockStyle.Fill };
-			this.spStep.MaximumSize = new Size( (int) this.fontSize.Width * 3, (int) this.fontSize.Height + 5 );
+			this.spStep.MaximumSize = new Size( (int) this.fontSize.Width * 5, (int) this.fontSize.Height + 5 );
+			this.spStep.MinimumSize = this.spStep.MaximumSize;
 
-			pnlSteps.Controls.Add( spStep );
-			pnlSteps.Controls.Add( lblSteps );
-			pnlSteps.ResumeLayout( true );
+			pnlNewStep.Controls.Add( spStep );
+			pnlNewStep.Controls.Add( lblNewStep );
+
+			pnlSteps.Controls.Add( pnlNewStep );
+			pnlSteps.Controls.Add( this.btMore );
+
 			this.pnlMain.Controls.Add( pnlSteps );
 			pnlSteps.MaximumSize = new Size( int.MaxValue, (int) this.fontSize.Height * 2 );
 		}
 
-		private void BuildControlButtons()
+		void BuildControlButtons()
 		{
 			var imgList = new ImageList { ImageSize = new Size( 16, 16 ) };
-			
+
 			imgList.Images.AddRange( new []{ this.addIcon, this.removeIcon } );
-			this.btMore = new Button { ImageList = imgList, ImageIndex = 0, Dock = DockStyle.Top };
-			this.btDelete = new Button { ImageList = imgList, ImageIndex = 1, Dock = DockStyle.Top };
-			
-			var buttonsPanel = new TableLayoutPanel { Dock = DockStyle.Bottom };
+			this.btMore = new Button { ImageList = imgList, ImageIndex = 0, Dock = DockStyle.Right };
+			this.btDelete = new Button { ImageList = imgList, ImageIndex = 1, Dock = DockStyle.Right };
 
-			buttonsPanel.Controls.Add( this.btMore );
-			buttonsPanel.Controls.Add( this.btDelete );
-
-			this.pnlMain.Controls.Add( buttonsPanel );
-			buttonsPanel.MaximumSize = new Size( int.MaxValue, (int) this.fontSize.Height * 4 );
-			
 			this.btMore.Click += (o, args) => {
 				this.steps.Add( (int) this.spStep.Value );
 				this.UpdateSteps();
 			};
+
 			this.btDelete.Click += (o, args) => {
 				if ( this.steps.Count > 0 ) {
 					this.steps.RemoveAt( this.steps.Count - 1 );
@@ -78,55 +77,75 @@ namespace Bareplan.Gui {
 				
 				this.UpdateSteps();
 			};
+
+			this.btMore.MaximumSize = new Size( int.MaxValue, (int) this.fontSize.Height * 2 );
+			this.btDelete.MaximumSize = new Size( int.MaxValue, (int) this.fontSize.Height * 2 );
 		}
 
-		private void Build()
+		void BuildStepsText()
+		{
+			var pnlTxtTest = new Panel { Dock = DockStyle.Fill };
+
+			this.txtTest = new TextBox {
+				Multiline = true,
+				Dock = DockStyle.Fill,
+				ReadOnly = true
+			};
+
+			pnlTxtTest.Controls.Add( this.txtTest );
+			pnlTxtTest.Controls.Add( this.btDelete );
+			this.pnlMain.Controls.Add( pnlTxtTest );
+		}
+
+		void BuildOkCancel()
+		{
+			var pnlButtons = new FlowLayoutPanel { Dock = DockStyle.Bottom };
+			pnlButtons.FlowDirection = FlowDirection.RightToLeft;
+
+			this.btOk = new Button {
+				Text = "Ok",
+				Dock = DockStyle.Bottom,
+				DialogResult = DialogResult.OK
+			};
+
+			this.btCancel = new Button {
+				Text = "Cancel",
+				Dock = DockStyle.Bottom,
+				DialogResult = DialogResult.Cancel
+			};
+
+			pnlButtons.Controls.Add( btOk );
+			pnlButtons.Controls.Add( btCancel );
+			pnlButtons.MaximumSize = new Size( int.MaxValue, (int)this.fontSize.Height * 2 );
+			this.Controls.Add( pnlButtons );
+		}
+
+		void Build()
 		{
 			this.BuildIcons();
 			
 			// Sizes
 			this.defaultFont = new Font( 
-				System.Drawing.SystemFonts.DefaultFont.FontFamily,
+				SystemFonts.DefaultFont.FontFamily,
 				12,
 				FontStyle.Regular );
 			Graphics grf = this.CreateGraphics();
 			this.fontSize = grf.MeasureString( "M", this.defaultFont );
 
-			this.txtTest = new TextBox {
-					Multiline = true,
-					Dock = DockStyle.Right,
-					ReadOnly = true };
-			this.btOk = new Button {
-					Text = "Ok",
-					Dock = DockStyle.Bottom,
-					DialogResult = DialogResult.OK };
-			this.btCancel = new Button {
-					Text = "Cancel",
-					Dock = DockStyle.Bottom,
-					DialogResult = DialogResult.Cancel };
-
 			// Main panel
 			this.pnlMain = new Panel() { Dock = DockStyle.Fill };
 			this.pnlMain.SuspendLayout();
 
-			this.BuildPanelStep();
 			this.BuildControlButtons();
+			this.BuildStepsText();
+			this.BuildOkCancel();
+			this.BuildPanelNewStep();
 
-			var pnlButtons = new FlowLayoutPanel(){ Dock = DockStyle.Bottom };
-			pnlButtons.FlowDirection = FlowDirection.RightToLeft;
-
-			this.pnlMain.Controls.Add( txtTest );
-			pnlButtons.Controls.Add( btOk );
-			pnlButtons.Controls.Add( btCancel );
 			this.Text = "Steps builder";
 			this.StartPosition = FormStartPosition.CenterParent;
 			this.Controls.Add( this.pnlMain );
 			this.pnlMain.ResumeLayout( true );
-			this.Controls.Add( pnlButtons );
-			pnlButtons.MaximumSize = new Size( int.MaxValue, (int) this.fontSize.Height * 3 );
-			this.pnlMain.MaximumSize = new Size( int.MaxValue, (int) this.fontSize.Height * 2 );
-			this.MaximumSize = new Size( int.MaxValue, (int) ( ( (double) ( this.pnlMain.MaximumSize.Height + pnlButtons.MaximumSize.Height ) ) * 1.5 ) );
-			this.MinimumSize = new Size( this.Width, this.MaximumSize.Height );
+			this.MinimumSize = this.Size;
 		}
 
 		public String Result {
@@ -141,27 +160,28 @@ namespace Bareplan.Gui {
 			}
 		}
 		
-		private void UpdateSteps()
+		void UpdateSteps()
 		{
-			this.txtTest.Text = String.Join( ", ", this.steps );
+			this.txtTest.Text = String.Join( ", ", this.steps )
+								+ " " + L10n.Get( L10n.Id.LblDays );
 			this.txtTest.SelectionLength = 0;
 			this.txtTest.SelectionStart = this.txtTest.TextLength;
 		}
 
-		private List<int> steps;
+		List<int> steps;
 
-		private TextBox txtTest;
-		private NumericUpDown spStep;
-		private Button btOk;
-		private Button btCancel;
-		private Button btMore;
-		private Button btDelete;
-		private Panel pnlMain;
-		private SizeF fontSize;
-		private Font defaultFont;
+		TextBox txtTest;
+		NumericUpDown spStep;
+		Button btOk;
+		Button btCancel;
+		Button btMore;
+		Button btDelete;
+		Panel pnlMain;
+		SizeF fontSize;
+		Font defaultFont;
 		
-		private Bitmap addIcon;
-		private Bitmap removeIcon;
+		Bitmap addIcon;
+		Bitmap removeIcon;
 	}
 }
 
