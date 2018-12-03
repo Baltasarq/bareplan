@@ -593,7 +593,7 @@ namespace Bareplan.Gui {
 		/// <param name="row">The row index the edited cell sits in.</param>
 		private void OnRowEdited(int row)
 		{
-			string strDate = (string)this.grdPlanning.Rows [row].Cells [(int)ColsIndex.Date].Value;
+			string strDate = (string) this.grdPlanning.Rows[ row ].Cells[ (int) ColsIndex.Date ].Value;
 			string strTask = (string) this.grdPlanning.Rows[ row ].Cells[ (int) ColsIndex.Task ].Value;
 
 			// Convert date
