@@ -48,14 +48,15 @@ namespace Bareplan.Core {
 				ExportInfo.Column column = (ExportInfo.Column) i;
 				string columnValue = this.GetColumn( column, rowInfo );
 				
-				if ( column == ExportInfo.Column.Task
-				  || column == ExportInfo.Column.Day )
+				if ( column == ExportInfo.Column.Session
+				  || column == ExportInfo.Column.Week
+				  || column == ExportInfo.Column.Date )
 				{
-					txt.Append( '"' );
 					txt.Append( columnValue );
-					txt.Append( '"' );
 				} else {
+					txt.Append( '"' );
 					txt.Append( columnValue );
+					txt.Append( '"' );
 				}
 				
 				if ( i < ( this.Info.ColumnNumber - 1 ) ) {

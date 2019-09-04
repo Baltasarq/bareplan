@@ -48,23 +48,24 @@
     <Compile Include="Core\DocumentPersistence.cs" />
     <Compile Include="Gui\BareplanApp.cs" />
     <Compile Include="Core\DocumentExporter.cs" />
-    <Compile Include="Core\HtmlExporter.cs" />
     <Compile Include="Core\Locale.cs" />
     <Compile Include="Core\L10n.cs" />
-    <Compile Include="Core\XmlDocumentPersistence.cs" />
     <Compile Include="Gui\MainWindowCore.cs" />
     <Compile Include="Gui\MainWindowView.cs" />
     <Compile Include="Core\Steps.cs" />
     <Compile Include="Gui\StepsBuilder.cs" />
-    <Compile Include="Core\CsvExporter.cs" />
     <Compile Include="Gui\ExportDlg.cs" />
     <Compile Include="Core\ExportInfo.cs" />
-    <Compile Include="Core\TextExporter.cs" />
-    <Compile Include="Core\GCalExporter.cs" />
+    <Compile Include="Core\Exporters\GCalExporter.cs" />
+    <Compile Include="Core\Exporters\HtmlExporter.cs" />
+    <Compile Include="Core\Exporters\CsvExporter.cs" />
+    <Compile Include="Core\Exporters\TextExporter.cs" />
+    <Compile Include="Core\Exporters\XmlDocumentPersistence.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Gui\" />
     <Folder Include="Core\" />
+    <Folder Include="Core\Exporters\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Res\appIcon.png" />

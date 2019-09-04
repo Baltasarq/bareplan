@@ -6,7 +6,7 @@ namespace Bareplan.Core {
 	using System.Diagnostics;
 	using System.Globalization;		
 	
-	using Pair = System.Collections.Generic.KeyValuePair<System.DateTime, string>;
+	using Pair = System.Collections.Generic.KeyValuePair<System.DateTime, Document.Task>;
 	
 	/// <summary>
 	/// Base class for all document exporters.
@@ -246,8 +246,11 @@ namespace Bareplan.Core {
 				case ExportInfo.Column.Date:
 					toret = rowInfo.Pair.Key.ToShortDateString();
 					break;
-				case ExportInfo.Column.Task:
-					toret = rowInfo.Pair.Value;
+				case ExportInfo.Column.Kind:
+					toret = rowInfo.Pair.Value.Kind;
+					break;
+				case ExportInfo.Column.Contents:
+					toret = rowInfo.Pair.Value.Contents;
 					break;
 			}
 			

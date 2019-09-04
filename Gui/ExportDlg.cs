@@ -94,7 +94,8 @@ namespace Bareplan.Gui {
 			toret.Items.Add( L10n.Get( L10n.Id.HdWeek ), true );
 			toret.Items.Add( L10n.Get( L10n.Id.HdDay ), true );
 			toret.Items.Add( L10n.Get( L10n.Id.HdDate ), true );
-			toret.Items.Add( L10n.Get( L10n.Id.HdTask ), true );
+			toret.Items.Add( L10n.Get( L10n.Id.HdKind ), true );
+			toret.Items.Add( L10n.Get( L10n.Id.HdContents ), true );
 			
 			toret.CheckOnClick = true;
 			toret.ItemCheck += (object o, ItemCheckEventArgs e) => this.OnColumnClicked( e );

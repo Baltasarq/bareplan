@@ -24,6 +24,8 @@ namespace Bareplan.Core {
 		public const string InitialDateTag = "initialdate";
 		/// <summary>The XML tag for a date.</summary>
 		public const string DateTag = "date";
+		/// <summary>The XML tag for a task kind.</summary>
+		public const string KindTag = "kind";
 
 		/// <summary>
 		/// Build a new document saver/loader by XML <see cref="XmlDocumentPersistence"/> class.
@@ -62,12 +64,13 @@ namespace Bareplan.Core {
 			writer.WriteEndElement();
 
 			// Write date, task pairs
-			KeyValuePair<DateTime, string> pair = this.Document.GotoFirst();
+			KeyValuePair<DateTime, Document.Task> pair = this.Document.GotoFirst();
 			while( !this.Document.IsEnd() ) {
 				// Tasks
 				writer.WriteStartElement( TaskTag );
 				writer.WriteAttributeString( DateTag,  pair.Key.ToString( "yyyy-MM-dd" ) );
-				writer.WriteString( HttpUtility.HtmlEncode( pair.Value ) );
+				writer.WriteAttributeString( KindTag,  HttpUtility.HtmlEncode( pair.Value.Kind ) );
+				writer.WriteString( HttpUtility.HtmlEncode( pair.Value.Contents ) );
 				writer.WriteEndElement();
 
 				pair = this.Document.Next();
@@ -102,19 +105,27 @@ namespace Bareplan.Core {
 
 					if ( element != null ) {
 						if ( elementName == TaskTag ) {
-							string task;
-							var date = element.Attributes.GetNamedItem( DateTag );
+							XmlNode dateNode = element.Attributes.GetNamedItem( DateTag );
+							XmlNode kindNode = element.Attributes.GetNamedItem( KindTag );
+							string contents = "";
+							string kind = Document.Task.KindTag;
 
-							if ( date != null ) {
-								task = HttpUtility.HtmlDecode( element.InnerText );
+							// Retrieve kind
+							if ( kindNode != null ) {
+								kind = HttpUtility.HtmlDecode( kindNode.InnerText );
+							}
+
+							// Check whether date exists
+							if ( dateNode != null ) {
+								contents = HttpUtility.HtmlDecode( element.InnerText );
 							} else {
 								throw new XmlException( "missing date in task" );
 							}
 
 							doc.AddLast();
 							doc.Modify( doc.CountDates - 1,
-							           DateTime.Parse( date.InnerText ),
-							           task
+							           DateTime.Parse( dateNode.InnerText ),
+							           new Document.Task( kind, contents )
 							);
 						}
 						else

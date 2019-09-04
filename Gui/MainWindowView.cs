@@ -13,7 +13,7 @@ namespace Bareplan.Gui {
 		/// <summary>Fonts are incremented by 2 units each time.</summary>
 		public const int FontStep = 2;
 		/// <summary>Represents the order of columns in the gridview.</summary>
-		public enum ColsIndex { Num, DoW, Date, Task };
+		public enum ColsIndex { Num, DoW, Date, Kind, Contents };
 		/// <summary>Tag in the configuration file for the width of the window.</summary>
 		public const string EtqWidth  = "width";
 		/// <summary>Tag in the configuration file for the height of the window.</summary>
@@ -105,10 +105,13 @@ namespace Bareplan.Gui {
 			this.grdPlanning.ColumnHeadersDefaultCellStyle.BackColor = Color.LightGray;
 			this.grdPlanning.ColumnHeadersDefaultCellStyle.ForeColor = Color.Black;
 			this.planningFont = new Font( this.grdPlanning.Font, FontStyle.Regular );
+
 			var textCellTemplate0 = new DataGridViewTextBoxCell();
 			var textCellTemplate1 = new DataGridViewTextBoxCell();
 			var textCellTemplate2 = new DataGridViewTextBoxCell();
 			var textCellTemplate3 = new DataGridViewTextBoxCell();
+			var textCellTemplate4 = new DataGridViewTextBoxCell();
+
 			textCellTemplate0.Style.BackColor = this.grdPlanning.RowHeadersDefaultCellStyle.BackColor;
 			textCellTemplate0.Style.ForeColor = this.grdPlanning.RowHeadersDefaultCellStyle.ForeColor;
 			textCellTemplate0.Style.Font = new Font( this.planningFont, FontStyle.Bold );
@@ -119,6 +122,8 @@ namespace Bareplan.Gui {
 			textCellTemplate2.Style.ForeColor = Color.Black;
 			textCellTemplate3.Style.BackColor = Color.White;
 			textCellTemplate3.Style.ForeColor = Color.Navy;
+			textCellTemplate4.Style.BackColor = Color.White;
+			textCellTemplate4.Style.ForeColor = Color.Navy;
 			var column0 = new DataGridViewTextBoxColumn {
 				HeaderText = "#",
 				Width = 25,
@@ -140,9 +145,15 @@ namespace Bareplan.Gui {
 				SortMode = DataGridViewColumnSortMode.NotSortable
 			};
 			var column3 = new DataGridViewTextBoxColumn {
-				HeaderText = "Tarea",
+				HeaderText = "Tipo",
 				Width = 250,
 				CellTemplate = textCellTemplate3,
+				SortMode = DataGridViewColumnSortMode.NotSortable
+			};
+			var column4 = new DataGridViewTextBoxColumn {
+				HeaderText = "Tarea",
+				Width = 250,
+				CellTemplate = textCellTemplate4,
 				SortMode = DataGridViewColumnSortMode.NotSortable
 			};
 			
@@ -151,6 +162,7 @@ namespace Bareplan.Gui {
 				column1,
 				column2,
 				column3,
+				column4
 			} );
 
 			this.grdPlanning.CellEndEdit += (object dest, DataGridViewCellEventArgs args) => 
@@ -630,8 +642,10 @@ namespace Bareplan.Gui {
 										(int) Math.Floor( width *.07 );	// DoW
 			this.grdPlanning.Columns[ (int) ColsIndex.Date ].Width =
 										(int) Math.Floor( width *.16 ); // Date
-			this.grdPlanning.Columns[ (int) ColsIndex.Task ].Width =
-										(int) Math.Floor( width *.70 ); // Task
+			this.grdPlanning.Columns[ (int) ColsIndex.Kind ].Width =
+										(int) Math.Floor( width *.16 ); // Kind
+			this.grdPlanning.Columns[ (int) ColsIndex.Contents ].Width =
+				    					(int) Math.Floor( width *.54 ); // Contents
 		}
 
 		private Bitmap bmpAppIcon;

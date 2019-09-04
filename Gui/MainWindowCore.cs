@@ -110,8 +110,10 @@ namespace Bareplan.Gui {
 				L10n.Get( L10n.Id.HdDay );
 			this.grdPlanning.Columns[ (int) ColsIndex.Date ].HeaderText =
 				L10n.Get( L10n.Id.HdDate );
-			this.grdPlanning.Columns[ (int) ColsIndex.Task ].HeaderText =
-				L10n.Get( L10n.Id.HdTask );
+			this.grdPlanning.Columns[ (int) ColsIndex.Kind ].HeaderText =
+				L10n.Get( L10n.Id.HdKind );
+			this.grdPlanning.Columns[ (int) ColsIndex.Contents ].HeaderText =
+				    L10n.Get( L10n.Id.HdContents );
 
 			// Properties
 			this.lblInitialDate.Text = L10n.Get( L10n.Id.LblInitialDate );
@@ -278,12 +280,13 @@ namespace Bareplan.Gui {
 		/// <summary>
 		/// Raises the calendar date changed event.
 		/// </summary>
-		void OnCalendarDateChanged() {
+		void OnCalendarDateChanged()
+		{
 			int[] taskPositionsForDate = this.doc.LookForTasksIn( this.calendar.SelectionStart );
 
 			this.txtDesc.Clear();
 			foreach(int x in taskPositionsForDate) {
-				this.txtDesc.AppendText( this.doc.Tasks[x] + '\n' );
+				this.txtDesc.AppendText( this.doc.Tasks[ x ].ToString() + '\n' );
 			}
 
 			return;
@@ -429,8 +432,6 @@ namespace Bareplan.Gui {
 			if ( this.doc != null ) {
 				var row = this.grdPlanning.CurrentRow;				
 				int rowNumber = 0;
-				string strDate = this.doc.InitialDate.ToShortDateString();
-				string strTask = Document.TaskTag;
 
 				this.grdPlanning.EndEdit();	
 				
@@ -439,11 +440,13 @@ namespace Bareplan.Gui {
 				}
 				
 				if ( this.grdPlanning.Rows.Count > 0 ) {
-					strDate = this.grdPlanning.Rows[ rowNumber ].Cells[ (int) ColsIndex.Date ].ToString();
-					strTask = this.grdPlanning.Rows[ rowNumber ].Cells[ (int) ColsIndex.Task ].ToString();
+					var task = this.doc.GetTask( rowNumber );
+					string strDate = this.grdPlanning.Rows[ rowNumber ].Cells[ (int) ColsIndex.Date ].ToString();
+					string strContents = this.grdPlanning.Rows[ rowNumber ].Cells[ (int) ColsIndex.Contents ].ToString();
 					
 					this.SetStatus( L10n.Get( L10n.Id.StRemoving )
-									+ ": " + strDate + "/" + strTask );
+									+ ": " + strDate + "/" + strContents
+					               + " (" + task + ")" );
 					this.doc.Remove( rowNumber );
 					this.UpdatePlanning( rowNumber );
 					this.ChangeToSessionsTab();
@@ -582,6 +585,7 @@ namespace Bareplan.Gui {
 			}
 
 			DataGridViewRow row = this.grdPlanning.Rows[ rowIndex ];
+			var task = this.doc.GetTask( rowIndex );
 
 			row.Cells[ (int) ColsIndex.Num ].Value =
 				( rowIndex + 1 ).ToString().PadLeft( 4, ' ' );
@@ -589,8 +593,8 @@ namespace Bareplan.Gui {
 				dtfo.GetAbbreviatedDayName( this.doc.GetDate( rowIndex ).DayOfWeek );
 			row.Cells[ (int) ColsIndex.Date ].Value =
 				this.doc.GetDate( rowIndex ).ToShortDateString();
-			row.Cells[ (int) ColsIndex.Task ].Value =
-				this.doc.GetTask( rowIndex );
+			row.Cells[ (int) ColsIndex.Kind ].Value = task.Kind;
+			row.Cells[ (int) ColsIndex.Contents ].Value = task.Contents;
 
 			return;
 		}
@@ -602,32 +606,37 @@ namespace Bareplan.Gui {
 		void OnRowEdited(int row)
 		{
 			string strDate = (string) this.grdPlanning.Rows[ row ].Cells[ (int) ColsIndex.Date ].Value;
-			string strTask = (string) this.grdPlanning.Rows[ row ].Cells[ (int) ColsIndex.Task ].Value;
+			string strKind = (string) this.grdPlanning.Rows[ row ].Cells[ (int) ColsIndex.Kind ].Value;
+			string strContents = (string) this.grdPlanning.Rows[ row ].Cells[ (int) ColsIndex.Contents ].Value;
 
-			// Convert date
-			if ( strDate == null
-			  || strDate.Trim().Length == 0 )
-			{
+			// Parse date
+			if ( string.IsNullOrWhiteSpace( strDate ) ) {
 				strDate = "";
-			}
-
-			if ( strTask == null
-			  || strTask.Trim().Length == 0 )
-			{
-				strTask = Document.TaskTag + ( row + 1 ).ToString();
 			}
 
 			if ( !DateTime.TryParse( strDate, out DateTime date ) ) {
 				date = this.doc.InitialDate;
 			}
 
+			// Parse contents
+			if ( string.IsNullOrWhiteSpace( strContents ) ) {
+				strContents = Document.Task.ContentsTag + ( row + 1 ).ToString();
+			}
+
+			// Parse kind
+			if ( string.IsNullOrWhiteSpace( strContents ) ) {
+				strContents = Document.Task.ContentsTag + ( row + 1 ).ToString();
+			}
+
+
 			// Update
 			strDate = date.ToShortDateString();
 			this.grdPlanning.Rows[ row ].Cells[ (int) ColsIndex.Date ].Value = strDate;
-			this.grdPlanning.Rows[ row ].Cells[ (int) ColsIndex.Task ].Value = strTask;
+			this.grdPlanning.Rows[ row ].Cells[ (int) ColsIndex.Kind ].Value = strKind;
+			this.grdPlanning.Rows[ row ].Cells[ (int) ColsIndex.Contents ].Value = strContents;
 
 			// Store
-			this.doc.Modify( row, date, strTask );
+			this.doc.Modify( row, date, new Document.Task( strKind, strContents ) );
 			return;
 		}
 

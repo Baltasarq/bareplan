@@ -27,9 +27,11 @@ namespace Bareplan.Core {
 		
 		protected override void WriteRow(StringBuilder txt, RowInfo rowInfo)
 		{
-			string description = this.GetColumn( ExportInfo.Column.Task, rowInfo );
 			string date = this.GetColumn( ExportInfo.Column.Date, rowInfo );
 			string subject = Path.GetFileNameWithoutExtension( this.Info.FileName );
+			string description = this.GetColumn( ExportInfo.Column.Kind, rowInfo )
+			                                     + ": "
+			                                     + this.GetColumn( ExportInfo.Column.Contents, rowInfo );
 
 			// Add double quotes where needed
 			subject = '"' + subject + '"';
@@ -40,7 +42,7 @@ namespace Bareplan.Core {
 			txt.Append( ',' );
 			txt.Append( date );
 			txt.Append( ',' );
-			txt.Append( "True");
+			txt.Append( "True" );
 			txt.Append( ',' );
 			txt.AppendLine( description );
 		}

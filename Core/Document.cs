@@ -5,15 +5,57 @@ namespace Bareplan.Core {
 	using System.Collections.Generic;
 	using System.Collections.ObjectModel;
 	
-	using Pair = System.Collections.Generic.KeyValuePair<System.DateTime, string>;
+	using Pair = System.Collections.Generic.KeyValuePair<System.DateTime, Document.Task>;
 
 	/// <summary>
 	/// Represents documents with dates and tasks.
 	/// The document is ordered by date, which has a corresponding task.
 	/// </summary>
 	public class Document {
-		/// <summary>The default task one is first created.</summary>
-		public const string TaskTag = "thema";
+		/// <summary>A task, associated with a date.</summary>
+		public class Task {
+			/// <summary>The default task one is first created.</summary>
+			public const string KindTag = "exercises";
+
+			/// <summary>The default task one is first created.</summary>
+			public const string ContentsTag = "thema";
+
+			/// <summary>Creates a new task with default kind and contents = contentags + i.
+			/// Initializes a new instance of the <see cref="T:Bareplan.Core.Document.Task"/> class.
+			/// </summary>
+			/// <param name="i">The index.</param>
+			public Task(int i)
+				: this( KindTag, ContentsTag + i.ToString() )
+			{				
+			}
+
+			public Task(string kind = KindTag, string contents = ContentsTag)
+			{
+				this.Kind = kind;
+				this.Contents = contents;
+			}
+
+			/// <summary>
+			/// Gets or sets the contents for this task.
+			/// </summary>
+			/// <value>The contents, as a string.</value>
+			public string Contents {
+				get; set;
+			}
+
+			/// <summary>
+			/// Gets or sets the kind of task.
+			/// </summary>
+			/// <value>The kind, as a string.</value>
+			public string Kind {
+				get; set;
+			}
+
+			public override string ToString()
+			{
+				return this.Kind + ": " + this.Contents;
+			}
+		}
 
 		/// <summary>
 		/// Initializes a new <see cref="T:Bareplan.Core.Document"/>.
@@ -22,7 +64,7 @@ namespace Bareplan.Core {
 		{
 			this.Steps = new Steps( this );
 			this.dates = new List<DateTime>();
-			this.tasks = new List<string>();
+			this.tasks = new List<Task>();
 			this.InitialDate = DateTime.Now;
 			this.hasNext = false;
 			this.FileName = "";
@@ -41,7 +83,7 @@ namespace Bareplan.Core {
 			}
 
 			this.dates.Add( date );
-			this.tasks.Add( TaskTag + this.CountDates.ToString() );
+			this.tasks.Add( new Task( this.CountDates + 1 ) );
 			this.NeedsSaving = true;
 		}
 
@@ -50,8 +92,8 @@ namespace Bareplan.Core {
 		/// </summary>
 		/// <param name="rowNumber">The row number to modify.</param>
 		/// <param name="date">A <see cref="DateTime"/>.</param>
-		/// <param name="task">A task.</param>
-		public void Modify(int rowNumber, DateTime date, string task)
+		/// <param name="task">A <see cref="Task"/>.</param>
+		public void Modify(int rowNumber, DateTime date, Task task)
 		{
 			this.dates[ rowNumber ] = date;
 			this.tasks[ rowNumber ] = task;
@@ -64,19 +106,19 @@ namespace Bareplan.Core {
 		/// <param name="i">The index of the position to insert in.</param>
 		public void InsertRow(int i)
 		{
-			this.tasks.Insert( i, TaskTag + ( i + 1 ).ToString() );
+			this.tasks.Insert( i, new Task( i + 1 ) );
 			this.dates.Insert( i, this.dates[ i ] );
 			this.NeedsSaving = true;
 		}
 
 		/// <summary>
-		/// Inserts a task with the default <see cref="TaskTag"/>.
+		/// Inserts a <see cref="Task"/> with the default values.
 		/// </summary>
 		/// <param name="i">The index of the position to insert in.</param>
 		/// <seealso cref="M:InsertTask"/>		
 		public void InsertTask(int i)
 		{
-			this.InsertTask( i, TaskTag + ( i + 1 ).ToString() );
+			this.InsertTask( i, new Task( i + 1 ) );
 		}
 
 		/// <summary>
@@ -85,8 +127,8 @@ namespace Bareplan.Core {
 		/// so both lists are kept of equal length.
 		/// </summary>
 		/// <param name="i">The index.</param>
-		/// <param name="task">The value of the task.</param>
-		public void InsertTask(int i, string task)
+		/// <param name="task">The <see cref="Task"/>.</param>
+		public void InsertTask(int i, Task task)
 		{
 			this.tasks.Insert( i, task );
 			this.dates.Add( this.LastDate.AddDays( this.Steps.NextStep ) );
@@ -99,14 +141,14 @@ namespace Bareplan.Core {
 		/// so both lists are kept of equal length.
 		/// </summary>
 		/// <param name="rowNumber">The position to insert in.</param>
-		/// <seealso cref="TaskTag"/> 
+		/// <seealso cref="Task"/> 
 		public void InsertDate(int rowNumber)
 		{
 			int count = this.tasks.Count;
 
 			// Insert
 			this.dates.Insert( rowNumber, this.dates[ rowNumber ] );
-			this.tasks.Add( TaskTag + ( count + 1 ).ToString() );
+			this.tasks.Add( new Task( count + 1 ) );
 			
 			this.NeedsSaving = true;
 		}
@@ -135,7 +177,7 @@ namespace Bareplan.Core {
 		{
 			if ( this.CountDates > i ) {
 				this.tasks.RemoveAt( i );
-				this.tasks.Add( TaskTag + this.CountDates.ToString() );
+				this.tasks.Add( new Task( this.CountDates ) );
 			}
 
 			this.NeedsSaving = true;
@@ -182,7 +224,7 @@ namespace Bareplan.Core {
 		{
 			this.hasNext = ( this.enumDates.MoveNext() && this.enumTasks.MoveNext() );
 			
-			return new KeyValuePair<DateTime, string>( enumDates.Current, enumTasks.Current );
+			return new KeyValuePair<DateTime, Task>( enumDates.Current, enumTasks.Current );
 		}
 
 		/// <summary>
@@ -243,7 +285,7 @@ namespace Bareplan.Core {
 		/// </summary>
 		/// <returns>The task.</returns>
 		/// <param name="i">The index.</param>
-		public string GetTask(int i)
+		public Task GetTask(int i)
 		{
 			return this.tasks[ i ];
 		}
@@ -278,8 +320,8 @@ namespace Bareplan.Core {
 		/// Gets all tasks.
 		/// </summary>
 		/// <value>The tasks, as a <see cref="T:System.Collections.ObjectModel.ReadOnlyCollection"/>.</value>
-		public ReadOnlyCollection<string> Tasks {
-			get { return new ReadOnlyCollection<string>( this.tasks.ToArray() ); }
+		public ReadOnlyCollection<Task> Tasks {
+			get { return new ReadOnlyCollection<Task>( this.tasks.ToArray() ); }
 		}
 
 		/// <summary>
@@ -361,12 +403,11 @@ namespace Bareplan.Core {
 			get; internal set;
 		}
 
-		private List<DateTime> dates;
-		private List<string> tasks;
-		private List<DateTime>.Enumerator enumDates;
-		private List<string>.Enumerator enumTasks;
-		private bool hasNext;
-		private DateTime initialDate;
+		List<DateTime> dates;
+		List<Task> tasks;
+		List<DateTime>.Enumerator enumDates;
+		List<Task>.Enumerator enumTasks;
+		bool hasNext;
+		DateTime initialDate;
 	}
 }
-

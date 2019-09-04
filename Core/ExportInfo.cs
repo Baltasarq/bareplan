@@ -14,14 +14,15 @@ namespace Bareplan.Core {
 		public static readonly ReadOnlyCollection<string> FileExt = new ReadOnlyCollection<string>(
 			new []{ "csv", ".html", "txt", "csv" } );
 		/// <summary>The columns to dump.</summary>
-		public enum Column { Session, Week, Day, Date, Task };
+		public enum Column { Session, Week, Day, Date, Kind, Contents };
 		/// <summary>Obtains the localized column headers.</summary>
 		public readonly Func<string>[] GetColumnHeaders = {
 			() => L10n.Get( L10n.Id.HdSession ),
 			() => L10n.Get( L10n.Id.HdWeek ),
 			() => L10n.Get( L10n.Id.HdDay ),
 			() => L10n.Get( L10n.Id.HdDate ),
-			() => L10n.Get( L10n.Id.HdTask ),
+			() => L10n.Get( L10n.Id.HdKind ),
+			() => L10n.Get( L10n.Id.HdContents ),
 		};
 		
 		/// <summary>
